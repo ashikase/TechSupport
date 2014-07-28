@@ -8,19 +8,19 @@
  * License: LGPL v3 (See LICENSE file for details)
  */
 
-#import "Instruction.h"
+#import "TSInstruction.h"
 
 typedef enum {
-    IncludeInstructionTypeFile,
-    IncludeInstructionTypePlist,
-    IncludeInstructionTypeCommand
-} IncludeInstructionType;
+    TSIncludeInstructionTypeFile,
+    TSIncludeInstructionTypePlist,
+    TSIncludeInstructionTypeCommand
+} TSIncludeInstructionType;
 
-@interface IncludeInstruction : Instruction
+@interface TSIncludeInstruction : TSInstruction
 @property(nonatomic, readonly) NSString *content;
 @property(nonatomic, readonly) NSString *filepath;
-@property(nonatomic, readonly) IncludeInstructionType type;
-+ (NSArray *)includeInstructionsForPackage:(Package *)package;
+@property(nonatomic, readonly) TSIncludeInstructionType type;
++ (NSArray *)includeInstructionsForPackage:(TSPackage *)package;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

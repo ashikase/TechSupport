@@ -10,10 +10,10 @@
 
 #import <UIKit/UIKit.h>
 
-@class IncludeInstruction;
+@class TSIncludeInstruction;
 
-@interface CrashLogViewController : UIViewController
-@property(nonatomic, retain) IncludeInstruction *instruction;
+@interface TSCrashLogViewController : UIViewController
+@property(nonatomic, retain) TSIncludeInstruction *instruction;
 + (void)escapeHTML:(NSMutableString *)string;
 - (void)setHTMLContent:(NSString *)content withDataDetector:(UIDataDetectorTypes)dataDetectors;
 @end

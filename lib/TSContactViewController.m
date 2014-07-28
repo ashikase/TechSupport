@@ -8,18 +8,18 @@
  * License: LGPL v3 (See LICENSE file for details)
  */
 
-#import "ContactViewController.h"
+#import "TSContactViewController.h"
 
 #import <MessageUI/MessageUI.h>
 #import <RegexKitLite/RegexKitLite.h>
 
-#import "CrashLogViewController.h"
+#import "TSCrashLogViewController.h"
 #import "ModalActionSheet.h"
 #import "pastie.h"
 
-#import "IncludeInstruction.h"
-#import "LinkInstruction.h"
-#import "Package.h"
+#import "TSIncludeInstruction.h"
+#import "TSLinkInstruction.h"
+#import "TSPackage.h"
 
 #include "system_info.h"
 
@@ -29,22 +29,22 @@ static const CGFloat kTableRowHeight = 48.0;
 + (id)tableCellBlueTextColor;
 @end
 
-@interface ContactViewController () <MFMailComposeViewControllerDelegate, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate>
+@interface TSContactViewController () <MFMailComposeViewControllerDelegate, UITableViewDataSource, UITableViewDelegate, UITextViewDelegate>
 @end
 
-@implementation ContactViewController {
+@implementation TSContactViewController {
     UITextView *textView_;
     UITableView *tableView_;
 
     NSString *placeholderText_;
 
-    Package *package_;
+    TSPackage *package_;
     NSString *suspect_;
-    LinkInstruction *linkInstruction_;
+    TSLinkInstruction *linkInstruction_;
     NSArray *includeInstructions_;
 }
 
-- (id)initWithPackage:(Package *)package suspect:(NSString *)suspect linkInstruction:(LinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
+- (id)initWithPackage:(TSPackage *)package suspect:(NSString *)suspect linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
     self = [super init];
     if (self != nil) {
         package_ = [package retain];
@@ -260,14 +260,14 @@ static const CGFloat kTableRowHeight = 48.0;
             [controller setToRecipients:[linkInstruction_ recipients]];
 
             // Add attachments.
-            for (IncludeInstruction *instruction in [self selectedAttachments]) {
+            for (TSIncludeInstruction *instruction in [self selectedAttachments]) {
                 // Attach to the email.
                 NSData *data = [[instruction content] dataUsingEncoding:NSUTF8StringEncoding];
                 if (data != nil) {
                     NSString *filepath = [instruction filepath];
-                    NSString *filename = ([instruction type] == IncludeInstructionTypeCommand) ?
+                    NSString *filename = ([instruction type] == TSIncludeInstructionTypeCommand) ?
                         [[instruction title] stringByAppendingPathExtension:@"txt"] : [filepath lastPathComponent];
-                    NSString *mimeType = ([instruction type] == IncludeInstructionTypePlist) ?
+                    NSString *mimeType = ([instruction type] == TSIncludeInstructionTypePlist) ?
                         @"application/x-plist" : @"text/plain";
                     [controller addAttachmentData:data mimeType:mimeType fileName:filename];
                 }
@@ -342,7 +342,7 @@ static const CGFloat kTableRowHeight = 48.0;
     cell.editingAccessoryType = UITableViewCellAccessoryDetailDisclosureButton;
     textLabel.textColor = [UIColor blackColor];
 
-    IncludeInstruction *instruction = [includeInstructions_ objectAtIndex:indexPath.row];
+    TSIncludeInstruction *instruction = [includeInstructions_ objectAtIndex:indexPath.row];
     textLabel.text = [instruction title];
     detailTextLabel.text = [instruction filepath];
     [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
@@ -352,7 +352,7 @@ static const CGFloat kTableRowHeight = 48.0;
 #pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
-    CrashLogViewController *controller = [CrashLogViewController new];
+    TSCrashLogViewController *controller = [TSCrashLogViewController new];
     controller.instruction = [includeInstructions_ objectAtIndex:indexPath.row];
     [self.navigationController pushViewController:controller animated:YES];
     [controller release];

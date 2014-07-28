@@ -10,7 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface Package : NSObject
+@interface TSPackage : NSObject
 @property(nonatomic, readonly) NSString *identifier;
 @property(nonatomic, readonly) NSString *storeIdentifier;
 @property(nonatomic, readonly) NSString *name;

@@ -8,10 +8,10 @@
  * License: LGPL v3 (See LICENSE file for details)
  */
 
-#import "CrashLogViewController.h"
+#import "TSCrashLogViewController.h"
 
 #import <MobileCoreServices/MobileCoreServices.h>
-#import "IncludeInstruction.h"
+#import "TSIncludeInstruction.h"
 
 @interface UIWebDocumentView : UIView
 - (id)text;
@@ -21,7 +21,7 @@
 - (UIWebDocumentView *)_documentView;
 @end
 
-@implementation CrashLogViewController {
+@implementation TSCrashLogViewController {
     UIWebView *webView_;
 }
 
@@ -49,7 +49,7 @@
     self.view = webView;
     webView_ = webView;
 
-    IncludeInstruction *instruction = [self instruction];
+    TSIncludeInstruction *instruction = [self instruction];
     self.title = instruction ? [instruction title] : NSLocalizedString(@"INCLUDE_UNTITLED", nil);
 
     NSString *title = NSLocalizedString(@"COPY", nil);
@@ -59,7 +59,7 @@
     [copyButton release];
 
     NSMutableString *crashLogString = [[instruction content] mutableCopy];
-    [CrashLogViewController escapeHTML:crashLogString];
+    [TSCrashLogViewController escapeHTML:crashLogString];
     [crashLogString insertString:@"<html><head><title>.</title></head><body><pre style=\"font-size:8pt;\">" atIndex:0];
     [crashLogString appendString:@"</pre></body></html>"];
     [self setHTMLContent:crashLogString withDataDetector:UIDataDetectorTypeNone];

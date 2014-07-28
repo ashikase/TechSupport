@@ -8,15 +8,15 @@
  * License: LGPL v3 (See LICENSE file for details)
  */
 
-#import "Instruction.h"
+#import "TSInstruction.h"
 
-@interface LinkInstruction : Instruction
+@interface TSLinkInstruction : TSInstruction
 @property(nonatomic, readonly) NSArray *recipients;
 @property(nonatomic, readonly) NSString *unlocalizedTitle;
 @property(nonatomic, readonly) NSURL *url;
 @property(nonatomic, readonly) BOOL isEmail;
 @property(nonatomic, readonly) BOOL isSupport;
-+ (NSArray *)linkInstructionsForPackage:(Package *)package;
++ (NSArray *)linkInstructionsForPackage:(TSPackage *)package;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

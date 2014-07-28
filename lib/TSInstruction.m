@@ -8,11 +8,11 @@
  * License: LGPL v3 (See LICENSE file for details)
  */
 
-#import "Instruction.h"
+#import "TSInstruction.h"
 
-#import "IncludeInstruction.h"
-#import "LinkInstruction.h"
-#import "Package.h"
+#import "TSIncludeInstruction.h"
+#import "TSLinkInstruction.h"
+#import "TSPackage.h"
 
 static NSArray *tokenize(NSString *string) {
     NSMutableArray *result = [NSMutableArray array];
@@ -55,7 +55,7 @@ static NSArray *tokenize(NSString *string) {
 
 static NSMutableDictionary *instructions$ = nil;
 
-@implementation Instruction
+@implementation TSInstruction
 
 @synthesize title = title_;
 @synthesize tokens = tokens_;
@@ -65,7 +65,7 @@ static NSMutableDictionary *instructions$ = nil;
         instructions$ = [NSMutableDictionary new];
     }
 
-    Instruction *instruction = [instructions$ objectForKey:line];
+    TSInstruction *instruction = [instructions$ objectForKey:line];
     if (instruction == nil) {
         NSArray *tokens = tokenize(line);
         NSUInteger count = [tokens count];
@@ -74,9 +74,9 @@ static NSMutableDictionary *instructions$ = nil;
 
             NSString *firstToken = [tokens objectAtIndex:0];
             if ([firstToken isEqualToString:@"include" ]) {
-                klass = [IncludeInstruction class];
+                klass = [TSIncludeInstruction class];
             } else if ([firstToken isEqualToString:@"link"]) {
-                klass = [LinkInstruction class];
+                klass = [TSLinkInstruction class];
             }
 
             if (klass != Nil) {
@@ -110,13 +110,13 @@ static NSMutableDictionary *instructions$ = nil;
     [super dealloc];
 }
 
-- (NSComparisonResult)compare:(Instruction *)instruction {
+- (NSComparisonResult)compare:(TSInstruction *)instruction {
     Class thisClass = [self class];
     Class thatClass = [instruction class];
     if (thisClass == thatClass) {
         return [[self title] compare:[instruction title]];
     } else {
-        return (thisClass == [LinkInstruction class]) ? NSOrderedAscending : NSOrderedDescending;
+        return (thisClass == [TSLinkInstruction class]) ? NSOrderedAscending : NSOrderedDescending;
     }
 }
 

@@ -8,17 +8,17 @@
  * License: LGPL v3 (See LICENSE file for details)
  */
 
-#import "LinkInstruction.h"
+#import "TSLinkInstruction.h"
 
 #import <RegexKitLite/RegexKitLite.h>
 #import "NSString+CrashReporter.h"
-#import "Package.h"
+#import "TSPackage.h"
 
-@interface Instruction (Private)
+@interface TSInstruction (Private)
 @property(nonatomic, copy) NSString *title;
 @end
 
-@implementation LinkInstruction
+@implementation TSLinkInstruction
 
 @synthesize recipients = recipients_;
 @synthesize unlocalizedTitle = unlocalizedTitle_;
@@ -26,7 +26,7 @@
 @synthesize isEmail = isEmail_;
 @synthesize isSupport = isSupport_;
 
-+ (NSArray *)linkInstructionsForPackage:(Package *)package {
++ (NSArray *)linkInstructionsForPackage:(TSPackage *)package {
     NSMutableArray *result = [NSMutableArray array];
 
     if (package != nil) {
@@ -38,7 +38,7 @@
         NSMutableArray *instructions = [NSMutableArray new];
         for (NSString *line in package.config) {
             if ([line hasPrefix:@"link"]) {
-                LinkInstruction *instruction = [self instructionWithLine:line];
+                TSLinkInstruction *instruction = [self instructionWithLine:line];
                 if (instruction != nil) {
                     if (instruction.isSupport) {
                         hasSupportLink = YES;
@@ -55,7 +55,7 @@
             NSString *line = [NSString stringWithFormat:
                 @"link url \"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=%lld&mt=8\" as \"%@\"",
                 item, NSLocalizedString(@"VIEW_IN_APP_STORE", nil)];
-            LinkInstruction *instruction = [self instructionWithLine:line];
+            TSLinkInstruction *instruction = [self instructionWithLine:line];
             if (instruction != nil) {
                 [result addObject:instruction];
             }
@@ -73,7 +73,7 @@
                                 NSString *emailAddress = [author substringWithRange:range];
                                 NSString *line = [NSString stringWithFormat:@"link email %@ as \"%@\" is_support",
                                     emailAddress, NSLocalizedString(@"CONTACT_AUTHOR", nil)];
-                                LinkInstruction *instruction = [self instructionWithLine:line];
+                                TSLinkInstruction *instruction = [self instructionWithLine:line];
                                 if (instruction != nil) {
                                     [result addObject:instruction];
                                 }
@@ -86,7 +86,7 @@
             // Add Cydia link.
             NSString *line = [NSString stringWithFormat:@"link url \"cydia://package/%@\" as \"%@\"",
                 package.storeIdentifier, NSLocalizedString(@"VIEW_IN_CYDIA", nil)];
-            LinkInstruction *instruction = [self instructionWithLine:line];
+            TSLinkInstruction *instruction = [self instructionWithLine:line];
             if (instruction != nil) {
                 [result addObject:instruction];
             }
@@ -99,7 +99,7 @@
 
     // Add an email link to send to an arbitrary address.
     NSString *line = [NSString stringWithFormat:@"link email \"\" as \"%@\" is_support", NSLocalizedString(@"FORWARD_TO", nil)];
-    LinkInstruction *instruction = [self instructionWithLine:line];
+    TSLinkInstruction *instruction = [self instructionWithLine:line];
     if (instruction != nil) {
         [result addObject:instruction];
     }

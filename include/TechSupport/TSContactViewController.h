@@ -10,11 +10,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class LinkInstruction;
-@class Package;
+@class TSLinkInstruction;
+@class TSPackage;
 
-@interface ContactViewController : UIViewController
-- (id)initWithPackage:(Package *)package suspect:(NSString *)suspect linkInstruction:(LinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions;
+@interface TSContactViewController : UIViewController
+- (id)initWithPackage:(TSPackage *)package suspect:(NSString *)suspect linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

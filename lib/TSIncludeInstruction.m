@@ -8,30 +8,30 @@
  * License: LGPL v3 (See LICENSE file for details)
  */
 
-#import "IncludeInstruction.h"
+#import "TSIncludeInstruction.h"
 
 #import "NSString+CrashReporter.h"
-#import "Package.h"
+#import "TSPackage.h"
 #import "crashlog_util.h"
 
-@interface Instruction (Private)
+@interface TSInstruction (Private)
 @property(nonatomic, copy) NSString *title;
 @end
 
-@implementation IncludeInstruction
+@implementation TSIncludeInstruction
 
 @synthesize content = content_;
 @synthesize filepath = filepath_;
 @synthesize type = type_;
 
-+ (NSArray *)includeInstructionsForPackage:(Package *)package {
++ (NSArray *)includeInstructionsForPackage:(TSPackage *)package {
     NSMutableArray *result = [NSMutableArray array];
 
     if (package != nil) {
         // Add (optional) include commands.
         for (NSString *line in package.config) {
             if ([line hasPrefix:@"include"]) {
-                IncludeInstruction *instruction = [self instructionWithLine:line];
+                TSIncludeInstruction *instruction = [self instructionWithLine:line];
                 if (instruction != nil) {
                     [result addObject:instruction];
                 }
@@ -68,13 +68,13 @@
                     if ([token isEqualToString:@"as"]) {
                         mode = ModeTitle;
                     } else if ([token isEqualToString:@"file"]) {
-                        type_ = IncludeInstructionTypeFile;
+                        type_ = TSIncludeInstructionTypeFile;
                         mode = ModeFilepath;
                     } else if ([token isEqualToString:@"command"]) {
-                        type_ = IncludeInstructionTypeCommand;
+                        type_ = TSIncludeInstructionTypeCommand;
                         mode = ModeFilepath;
                     } else if ([token isEqualToString:@"plist"]) {
-                        type_ = IncludeInstructionTypePlist;
+                        type_ = TSIncludeInstructionTypePlist;
                         mode = ModeFilepath;
                     }
                     break;
@@ -111,12 +111,12 @@ loop_exit:
 - (NSString *)content {
     if (content_ == nil) {
         NSString *filepath = [self filepath];
-        if (type_ == IncludeInstructionTypeFile) {
+        if (type_ == TSIncludeInstructionTypeFile) {
             NSData *data = dataForFile(filepath);
             if (data != nil) {
                 content_ = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             }
-        } else if (type_ == IncludeInstructionTypePlist) {
+        } else if (type_ == TSIncludeInstructionTypePlist) {
             NSData *data = dataForFile(filepath);
             if (data != nil) {
                 id plist = nil;

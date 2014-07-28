@@ -10,11 +10,11 @@
 
 // Referenced from searchfiles() of query.c of the dpkg source package.
 
-#import "Package.h"
+#import "TSPackage.h"
 
 #include <stdio.h>
 
-@implementation Package
+@implementation TSPackage
 
 @synthesize identifier = identifier_;
 @synthesize storeIdentifier = storeIdentifier_;

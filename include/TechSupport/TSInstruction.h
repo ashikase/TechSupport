@@ -10,15 +10,15 @@
 
 #import <UIKit/UIKit.h>
 
-@class Package;
+@class TSPackage;
 
-@interface Instruction : NSObject
+@interface TSInstruction : NSObject
 @property(nonatomic, copy) NSString *title;
 @property(nonatomic, readonly) NSArray *tokens;
 + (instancetype)instructionWithLine:(NSString *)line;
 + (void)flushInstructions;
 - (instancetype)initWithTokens:(NSArray *)tokens;
-- (NSComparisonResult)compare:(Instruction *)other;
+- (NSComparisonResult)compare:(TSInstruction *)other;
 - (UITableViewCell *)format:(UITableViewCell *)cell;
 @end
 
