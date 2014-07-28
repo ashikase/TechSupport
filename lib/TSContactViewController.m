@@ -13,7 +13,7 @@
 #import <MessageUI/MessageUI.h>
 #import <RegexKitLite/RegexKitLite.h>
 
-#import "TSCrashLogViewController.h"
+#import "TSHTMLViewController.h"
 //#import "ModalActionSheet.h"
 //#import "pastie.h"
 
@@ -354,8 +354,9 @@ static const CGFloat kTableRowHeight = 48.0;
 #pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
-    TSCrashLogViewController *controller = [TSCrashLogViewController new];
-    controller.instruction = [includeInstructions_ objectAtIndex:indexPath.row];
+    TSIncludeInstruction *instruction = [includeInstructions_ objectAtIndex:indexPath.row];
+    TSHTMLViewController *controller = [TSHTMLViewController new];
+    controller.title = [instruction title] ?: NSLocalizedString(@"INCLUDE_UNTITLED", nil);
     [self.navigationController pushViewController:controller animated:YES];
     [controller release];
 }

@@ -10,12 +10,9 @@
 
 #import <UIKit/UIKit.h>
 
-@class TSIncludeInstruction;
-
-@interface TSCrashLogViewController : UIViewController
-@property(nonatomic, retain) TSIncludeInstruction *instruction;
-+ (void)escapeHTML:(NSMutableString *)string;
-- (void)setHTMLContent:(NSString *)content withDataDetector:(UIDataDetectorTypes)dataDetectors;
+@interface TSHTMLViewController : UIViewController
+- (id)initWithHTMLContent:(NSString *)content;
+- (id)initWithHTMLContent:(NSString *)content dataDetector:(UIDataDetectorTypes)dataDetectors;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */
