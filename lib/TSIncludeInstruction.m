@@ -12,7 +12,6 @@
 
 #import "NSString+CrashReporter.h"
 #import "TSPackage.h"
-#import "crashlog_util.h"
 
 @interface TSInstruction (Private)
 @property(nonatomic, copy) NSString *title;
@@ -112,12 +111,15 @@ loop_exit:
     if (content_ == nil) {
         NSString *filepath = [self filepath];
         if (type_ == TSIncludeInstructionTypeFile) {
-            NSData *data = dataForFile(filepath);
-            if (data != nil) {
-                content_ = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSError *error = nil;
+            content_ = [[NSString alloc] initWithContentsOfFile:filepath usedEncoding:nil error:&error];
+            if (content_ == nil) {
+                fprintf(stderr, "ERROR: Unable to load contents of file \"%s\": \"%s\".\n",
+                        [filepath UTF8String], [[error localizedDescription] UTF8String]);
             }
         } else if (type_ == TSIncludeInstructionTypePlist) {
-            NSData *data = dataForFile(filepath);
+            NSError *error = nil;
+            NSData *data = [[NSData alloc] initWithContentsOfFile:filepath options:0 error:&error];
             if (data != nil) {
                 id plist = nil;
                 if ([NSPropertyListSerialization respondsToSelector:@selector(propertyListWithData:options:format:error:)]) {
@@ -126,6 +128,9 @@ loop_exit:
                     plist = [NSPropertyListSerialization propertyListFromData:data mutabilityOption:0 format:NULL errorDescription:NULL];
                 }
                 content_ = [[plist description] retain];
+            } else {
+                fprintf(stderr, "ERROR: Unable to load data from \"%s\": \"%s\".\n",
+                        [filepath UTF8String], [[error localizedDescription] UTF8String]);
             }
         } else {
             fflush(stdout);
