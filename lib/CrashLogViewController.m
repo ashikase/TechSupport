@@ -1,12 +1,11 @@
 /**
- * Name: CrashReporter
- * Type: iOS application
- * Desc: iOS app for viewing the details of a crash, determining the possible
- *       cause of said crash, and reporting this information to the developer(s)
- *       responsible.
+ * Name: TechSupport
+ * Type: iOS framework
+ * Desc: iOS framework to assist in providing support for and receiving issue
+ *       reports and feedback from users.
  *
  * Author: Lance Fetters (aka. ashikase)
- * License: GPL v3 (See LICENSE file for details)
+ * License: LGPL v3 (See LICENSE file for details)
  */
 
 #import "CrashLogViewController.h"

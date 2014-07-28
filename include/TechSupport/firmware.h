@@ -1,6 +1,6 @@
 /**
  * Author: Lance Fetters (aka. ashikase)
- * License: GPL v3 (See LICENSE file for details)
+ * License: Apache License, Version 2.0 (See LICENSE file for details)
  */
 
 #ifndef COMMON_FIRMWARE_H_
