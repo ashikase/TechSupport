@@ -14,8 +14,8 @@
 #import <RegexKitLite/RegexKitLite.h>
 
 #import "TSCrashLogViewController.h"
-#import "ModalActionSheet.h"
-#import "pastie.h"
+//#import "ModalActionSheet.h"
+//#import "pastie.h"
 
 #import "TSIncludeInstruction.h"
 #import "TSLinkInstruction.h"
@@ -186,6 +186,7 @@ static const CGFloat kTableRowHeight = 48.0;
 - (NSString *)uploadAttachments {
     NSMutableString *urlsString = nil;
 
+#if 0
     ModalActionSheet *hud = [ModalActionSheet new];
     [hud show];
 
@@ -211,6 +212,7 @@ static const CGFloat kTableRowHeight = 48.0;
 
     [hud hide];
     [hud release];
+#endif
 
     return urlsString;
 }
