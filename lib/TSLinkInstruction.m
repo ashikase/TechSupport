@@ -11,7 +11,6 @@
 #import "TSLinkInstruction.h"
 
 #import <RegexKitLite/RegexKitLite.h>
-#import "NSString+CrashReporter.h"
 #import "TSPackage.h"
 
 @interface TSInstruction (Private)
@@ -144,11 +143,11 @@
                     mode = ModeAttribute;
                     break;
                 case ModeTitle:
-                    unlocalizedTitle_ = [[token stripQuotes] retain];
+                    unlocalizedTitle_ = [stripQuotes(token) retain];
                     mode = ModeAttribute;
                     break;
                 case ModeURL:
-                    url_ = [[NSURL alloc] initWithString:[token stripQuotes]];
+                    url_ = [[NSURL alloc] initWithString:stripQuotes(token)];
                     mode = ModeAttribute;
                     break;
                 default:

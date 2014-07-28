@@ -10,7 +10,6 @@
 
 #import "TSIncludeInstruction.h"
 
-#import "NSString+CrashReporter.h"
 #import "TSPackage.h"
 
 @interface TSInstruction (Private)
@@ -78,7 +77,7 @@
                     }
                     break;
                 case ModeTitle:
-                    title = [token stripQuotes];
+                    title = stripQuotes(token);
                     mode = ModeAttribute;
                     break;
                 case ModeFilepath:
@@ -89,7 +88,7 @@
         }
 
 loop_exit:
-        filepath_ = [[[[tokens subarrayWithRange:NSMakeRange(index, (count - index))] componentsJoinedByString:@" "] stripQuotes] retain];
+        filepath_ = [stripQuotes([[tokens subarrayWithRange:NSMakeRange(index, (count - index))] componentsJoinedByString:@" "]) retain];
         [self setTitle:(title ?: filepath_)];
     }
     return self;

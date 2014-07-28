@@ -14,6 +14,16 @@
 #import "TSLinkInstruction.h"
 #import "TSPackage.h"
 
+NSString *stripQuotes(NSString *string) {
+    NSUInteger length = [string length];
+    if (length >= 2) {
+        if (([string characterAtIndex:0] == '"') && ([string characterAtIndex:(length - 1)] == '"')) {
+            return [string substringWithRange:NSMakeRange(1, (length - 2))];
+        }
+    }
+    return [[string copy] autorelease];
+}
+
 static NSArray *tokenize(NSString *string) {
     NSMutableArray *result = [NSMutableArray array];
 
