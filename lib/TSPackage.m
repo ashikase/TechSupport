@@ -12,6 +12,7 @@
 
 #import "TSPackage.h"
 
+#import "TSIncludeInstruction.h"
 #import "TSLinkInstruction.h"
 
 #include <stdio.h>
@@ -274,6 +275,21 @@
     }
 
     return instruction;
+}
+
+- (NSArray *)supportAttachments {
+    NSMutableArray *instructions = [NSMutableArray new];
+
+    for (NSString *line in [self config]) {
+        if ([line hasPrefix:@"include"]) {
+            TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithLine:line];
+            if (instruction != nil) {
+                [instructions addObject:instruction];
+            }
+        }
+    }
+
+    return instructions;
 }
 
 @end

@@ -10,8 +10,6 @@
 
 #import "TSIncludeInstruction.h"
 
-#import "TSPackage.h"
-
 @interface TSInstruction (Private)
 @property(nonatomic, copy) NSString *title;
 @end
@@ -21,24 +19,6 @@
 @synthesize content = content_;
 @synthesize filepath = filepath_;
 @synthesize type = type_;
-
-+ (NSArray *)includeInstructionsForPackage:(TSPackage *)package {
-    NSMutableArray *result = [NSMutableArray array];
-
-    if (package != nil) {
-        // Add (optional) include commands.
-        for (NSString *line in package.config) {
-            if ([line hasPrefix:@"include"]) {
-                TSIncludeInstruction *instruction = [self instructionWithLine:line];
-                if (instruction != nil) {
-                    [result addObject:instruction];
-                }
-            }
-        }
-    }
-
-    return result;
-}
 
 // NOTE: Format is:
 //

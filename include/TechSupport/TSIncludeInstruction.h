@@ -20,7 +20,6 @@ typedef enum {
 @property(nonatomic, readonly) NSString *content;
 @property(nonatomic, readonly) NSString *filepath;
 @property(nonatomic, readonly) TSIncludeInstructionType type;
-+ (NSArray *)includeInstructionsForPackage:(TSPackage *)package;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */
