@@ -1,0 +1,14 @@
+Package: jp.ashikase.techsupport
+Name: TechSupport Framework
+Version: 1.0.0~b1
+Description: Framework to assist in providing feedback to developers.
+Architecture: iphoneos-arm
+Pre-Depends: firmware (>=3.0)
+Depiction: http://moreinfo.thebigboss.org/moreinfo/depiction.php?file=techsupportData
+Homepage: http://github.com/ashikase/TechSupport
+Maintainer: BigBoss <bigboss@thebigboss.org>
+Author: Lance Fetters (ashikase) <support@ashikase.com>
+Sponsor: thebigboss.org <http://thebigboss.org>
+Section: Development
+Tag: role::developer
+dev: ashikase

@@ -1,0 +1,10 @@
+ATTACHMENTS = "Fichiers joints";
+CANNOT_EMAIL = "Vous ne pouvez pas envoyer de courriels à partir de ce dispositif.";
+CONTACT_AUTHOR = "Contacter l'auteur";
+COPY = "Copier";
+EMAIL_FAILED_1 = "Échec lors de l'envoi de l'e-mail.\nError: ";
+EMAIL_PLACEHOLDER = "Veuillez entrez les détails ici, tels que:\n\n* Posez votre ou vos questions?\n\n* Quelles circonstances ont conduit au crash?\n\n* Est-ce que le crash ce produit à chaque fois?";
+INCLUDE_UNTITLED = "Sans titre";
+OK = "OK";
+VIEW_IN_APP_STORE = "Voir le paquet sur l'App Store";
+VIEW_IN_CYDIA = "Voir le paquet sur Cydia";

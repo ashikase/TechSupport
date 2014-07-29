@@ -1,0 +1,12 @@
+"Upload failed" = "Upload failed";
+"pastie.org is unreachable." = "pastie.org is unreachable.";
+ATTACHMENTS = "Attachments";
+CANNOT_EMAIL = "Cannot send email from this device.";
+CONTACT_AUTHOR = "Contact author";
+COPY = "Copy";
+EMAIL_FAILED_1 = "Failed to send email.\nError: ";
+EMAIL_PLACEHOLDER = "Please enter details here, such as:\n\n* When did the issue begin?\n\n* What steps led to the issue?\n\n* Does the issue happen every time?";
+INCLUDE_UNTITLED = "Untitled";
+OK = "OK";
+VIEW_IN_APP_STORE = "View package in App Store";
+VIEW_IN_CYDIA = "View package in Cydia";
