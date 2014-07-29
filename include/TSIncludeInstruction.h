@@ -17,7 +17,7 @@ typedef enum {
 } TSIncludeInstructionType;
 
 @interface TSIncludeInstruction : TSInstruction
-@property(nonatomic, readonly) NSString *content;
+@property(nonatomic, readonly) NSData *content;
 @property(nonatomic, readonly) NSString *filepath;
 @property(nonatomic, readonly) TSIncludeInstructionType type;
 @end

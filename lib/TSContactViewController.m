@@ -198,6 +198,7 @@ static const CGFloat kTableRowHeight = 48.0;
     ModalActionSheet *hud = [ModalActionSheet new];
     [hud show];
 
+    // FIXME: The "content" property now returns NSData, not NSString.
     NSArray *contents = [[self selectedAttachments] valueForKey:@"content"];
     if ([contents count] > 0) {
         NSArray *urls = pastie(contents, hud);
@@ -272,7 +273,7 @@ static const CGFloat kTableRowHeight = 48.0;
             // Add attachments.
             for (TSIncludeInstruction *instruction in [self selectedAttachments]) {
                 // Attach to the email.
-                NSData *data = [[instruction content] dataUsingEncoding:NSUTF8StringEncoding];
+                NSData *data = [instruction content];
                 if (data != nil) {
                     NSString *filepath = [instruction filepath];
                     NSString *filename = ([instruction type] == TSIncludeInstructionTypeCommand) ?

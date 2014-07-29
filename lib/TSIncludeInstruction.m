@@ -86,13 +86,13 @@ loop_exit:
     return cell;
 }
 
-- (NSString *)content {
+- (NSData *)content {
     if (content_ == nil) {
         NSString *filepath = [self filepath];
         if (type_ == TSIncludeInstructionTypeFile) {
             // Return contents of file.
             NSError *error = nil;
-            content_ = [[NSString alloc] initWithContentsOfFile:filepath usedEncoding:nil error:&error];
+            content_ = [[NSData alloc] initWithContentsOfFile:filepath options:0 error:&error];
             if (content_ == nil) {
                 fprintf(stderr, "ERROR: Unable to load contents of file \"%s\": \"%s\".\n",
                         [filepath UTF8String], [[error localizedDescription] UTF8String]);
@@ -108,7 +108,7 @@ loop_exit:
                 } else {
                     plist = [NSPropertyListSerialization propertyListFromData:data mutabilityOption:0 format:NULL errorDescription:NULL];
                 }
-                content_ = [[plist description] retain];
+                content_ = [[[plist description] dataUsingEncoding:NSUTF8StringEncoding] retain];
             } else {
                 fprintf(stderr, "ERROR: Unable to load data from \"%s\": \"%s\".\n",
                         [filepath UTF8String], [[error localizedDescription] UTF8String]);
@@ -132,14 +132,14 @@ loop_exit:
             // Treat output as a filename to be loaded and contents returned.
             // NOTE: We do not retrieve the error as failure is not unexpected.
             NSString *path = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            NSString *content = [[NSString alloc] initWithContentsOfFile:path usedEncoding:nil error:nil];
-            if (content != nil) {
-                content_ = content;
-                [string release];
+            NSData *data = [[NSData alloc] initWithContentsOfFile:path options:0 error:nil];
+            if (data != nil) {
+                content_ = data;
             } else {
                 // No such file or file could not be read; treat output itself as content.
-                content_ = string;
+                content_ = [[string dataUsingEncoding:NSUTF8StringEncoding] retain];
             }
+            [string release];
         }
     }
     return content_;
