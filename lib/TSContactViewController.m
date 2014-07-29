@@ -11,8 +11,6 @@
 #import "TSContactViewController.h"
 
 #import <MessageUI/MessageUI.h>
-#import <RegexKitLite/RegexKitLite.h>
-
 #import "TSHTMLViewController.h"
 //#import "ModalActionSheet.h"
 //#import "pastie.h"
@@ -141,7 +139,17 @@ static const CGFloat kTableRowHeight = 48.0;
     // Add default message.
     BOOL isForward = ([linkInstruction_ recipients] == nil);
     if (!isForward) {
-        NSString *author = [package_.author stringByReplacingOccurrencesOfRegex:@"\\s*<[^>]+>" withString:@""] ?: @"developer";
+        NSString *author = [package_ author];
+        if (author != nil) {
+            NSRange range = [author rangeOfString:@"<"];
+            if (range.location != NSNotFound) {
+                author = [author substringToIndex:range.location];
+            }
+            author = [author stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        }
+        if ([author length] == 0) {
+            author = @"developer";
+        }
         [string appendFormat:@"Dear %@,\n\n", author];
     }
     if (package_.isAppStore) {
@@ -276,7 +284,11 @@ static const CGFloat kTableRowHeight = 48.0;
             }
 
             // Present the mail controller for confirmation.
-            [self presentModalViewController:controller animated:YES];
+            if (IOS_LT(6_0)) {
+                [self presentModalViewController:controller animated:YES];
+            } else {
+                [self presentViewController:controller animated:YES completion:nil];
+            }
             [controller release];
         } else {
             NSString *cannotMailMessage = NSLocalizedString(@"CANNOT_EMAIL", nil);

@@ -10,8 +10,21 @@
 
 #import "TSLinkInstruction.h"
 
-#import <RegexKitLite/RegexKitLite.h>
 #import "TSPackage.h"
+
+static NSArray *recipientsFromString(NSString *string) {
+    NSMutableArray *recipients = [NSMutableArray array];
+
+    NSCharacterSet *characterSet = [NSCharacterSet characterSetWithCharactersInString:@" \t,"];
+    NSArray *components = [string componentsSeparatedByCharactersInSet:characterSet];
+    for (NSString *component in components) {
+        if ([component length] > 0) {
+            [recipients addObject:component];
+        }
+    }
+
+    return recipients;
+}
 
 @interface TSInstruction (Private)
 @property(nonatomic, copy) NSString *title;
@@ -138,7 +151,7 @@
                 case ModeRecipients:
                     // TODO: Consider adding a proper check for email addresses.
                     if ([token rangeOfString:@"@"].location != NSNotFound) {
-                        recipients_ = [[token componentsSeparatedByRegex:@",\\s*"] retain];
+                        recipients_ = [recipientsFromString(token) retain];
                     }
                     mode = ModeAttribute;
                     break;
