@@ -6,7 +6,8 @@ TechSupport_OBJC_FILES = \
     lib/TSHTMLViewController.m \
     lib/TSIncludeInstruction.m \
     lib/TSInstruction.m \
-    lib/TSLinkInstruction.m
+    lib/TSLinkInstruction.m \
+    lib/TSPackage.m
 TechSupport_FRAMEWORKS = MessageUI UIKit
 TechSupport_LIBRARIES = lockdown
 ADDITIONAL_CFLAGS = -Iinclude/TechSupport -include firmware.h

@@ -199,7 +199,7 @@
         NSMutableArray *instructions = [NSMutableArray new];
         for (NSString *line in config_) {
             if ([line hasPrefix:@"link"]) {
-                TSLinkInstruction *instruction = [self instructionWithLine:line];
+                TSLinkInstruction *instruction = [TSLinkInstruction instructionWithLine:line];
                 if (instruction != nil) {
                     if ([instruction isSupport]) {
                         if (supportLinkInstruction_ == nil) {
@@ -232,20 +232,20 @@
 - (TSLinkInstruction *)storeLink {
     NSString *line = nil;
 
-    if ([package isAppStore]) {
+    if ([self isAppStore]) {
         // Add App Store link.
         // NOTE: Must use long long here as there are over 2 billion apps on the App Store.
-        long long item = [package.storeIdentifier longLongValue];
+        long long item = [[self storeIdentifier] longLongValue];
         line = [NSString stringWithFormat:
             @"link url \"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=%lld&mt=8\" as \"%@\"",
             item, NSLocalizedString(@"VIEW_IN_APP_STORE", nil)];
     } else {
         // Add Cydia link.
         line = [NSString stringWithFormat:@"link url \"cydia://package/%@\" as \"%@\"",
-            package.storeIdentifier, NSLocalizedString(@"VIEW_IN_CYDIA", nil)];
+            [self storeIdentifier], NSLocalizedString(@"VIEW_IN_CYDIA", nil)];
     }
 
-    return [self instructionWithLine:line];
+    return [TSLinkInstruction instructionWithLine:line];
 }
 
 - (TSLinkInstruction *)supportLink {
@@ -255,7 +255,7 @@
         return supportLinkInstruction_;
     } else {
         // Return email link to contact author.
-        NSString *author = [package author];
+        NSString *author = [self author];
         if (author != nil) {
             NSRange leftAngleRange = [author rangeOfString:@"<" options:NSBackwardsSearch];
             if (leftAngleRange.location != NSNotFound) {
@@ -266,7 +266,7 @@
                         NSString *emailAddress = [author substringWithRange:range];
                         NSString *line = [NSString stringWithFormat:@"link email %@ as \"%@\" is_support",
                                  emailAddress, NSLocalizedString(@"CONTACT_AUTHOR", nil)];
-                        instruction = [self instructionWithLine:line];
+                        instruction = [TSLinkInstruction instructionWithLine:line];
                     }
                 }
             }
