@@ -368,10 +368,16 @@ static const CGFloat kTableRowHeight = 48.0;
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     TSIncludeInstruction *instruction = [includeInstructions_ objectAtIndex:indexPath.row];
-    TSHTMLViewController *controller = [TSHTMLViewController new];
-    controller.title = [instruction title] ?: NSLocalizedString(@"INCLUDE_UNTITLED", nil);
-    [self.navigationController pushViewController:controller animated:YES];
-    [controller release];
+    NSString *content = [[NSString alloc] initWithData:[instruction content] encoding:NSUTF8StringEncoding];
+    if (content != nil) {
+        TSHTMLViewController *controller = [[TSHTMLViewController alloc] initWithHTMLContent:content];
+        controller.title = [instruction title] ?: NSLocalizedString(@"INCLUDE_UNTITLED", nil);
+        [self.navigationController pushViewController:controller animated:YES];
+        [controller release];
+        [content release];
+    } else {
+        NSLog(@"ERROR: Content could not be interpreted as a string.");
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
