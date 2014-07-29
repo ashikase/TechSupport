@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 @implementation TSPackage {
+    NSArray *config_;
     TSLinkInstruction *supportLinkInstruction_;
 }
 
@@ -26,7 +27,6 @@
 @synthesize name = name_;
 @synthesize author = author_;
 @synthesize version = version_;
-@synthesize config = config_;
 @synthesize isAppStore = isAppStore_;
 @synthesize otherLinks = otherLinks_;
 
@@ -280,7 +280,7 @@
 - (NSArray *)supportAttachments {
     NSMutableArray *instructions = [NSMutableArray new];
 
-    for (NSString *line in [self config]) {
+    for (NSString *line in config_) {
         if ([line hasPrefix:@"include"]) {
             TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithLine:line];
             if (instruction != nil) {

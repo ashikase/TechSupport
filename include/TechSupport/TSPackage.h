@@ -18,7 +18,6 @@
 @property(nonatomic, readonly) NSString *name;
 @property(nonatomic, readonly) NSString *author;
 @property(nonatomic, readonly) NSString *version;
-@property(nonatomic, readonly) NSArray *config;
 @property(nonatomic, readonly) BOOL isAppStore;
 @property(nonatomic, readonly) TSLinkInstruction *storeLink;
 @property(nonatomic, readonly) TSLinkInstruction *supportLink;
