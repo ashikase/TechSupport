@@ -90,6 +90,7 @@ loop_exit:
     if (content_ == nil) {
         NSString *filepath = [self filepath];
         if (type_ == TSIncludeInstructionTypeFile) {
+            // Return contents of file.
             NSError *error = nil;
             content_ = [[NSString alloc] initWithContentsOfFile:filepath usedEncoding:nil error:&error];
             if (content_ == nil) {
@@ -97,6 +98,7 @@ loop_exit:
                         [filepath UTF8String], [[error localizedDescription] UTF8String]);
             }
         } else if (type_ == TSIncludeInstructionTypePlist) {
+            // Return contents of property list, converted to a legible format.
             NSError *error = nil;
             NSData *data = [[NSData alloc] initWithContentsOfFile:filepath options:0 error:&error];
             if (data != nil) {
@@ -112,6 +114,7 @@ loop_exit:
                         [filepath UTF8String], [[error localizedDescription] UTF8String]);
             }
         } else {
+            // Return the output of a command.
             fflush(stdout);
             FILE *f = popen([filepath UTF8String], "r");
             if (f == NULL) {
@@ -125,7 +128,17 @@ loop_exit:
                 [string appendFormat:@"%.*s", (int)charsRead, buf];
             }
             pclose(f);
-            content_ = string;
+
+            // Treat output as a filename to be loaded and contents returned.
+            // NOTE: We do not retrieve the error as failure is not unexpected.
+            NSString *content = [[NSString alloc] initWithContentsOfFile:string usedEncoding:nil error:nil];
+            if (content != nil) {
+                content_ = content;
+                [string release];
+            } else {
+                // No such file or file could not be read; treat output itself as content.
+                content_ = string;
+            }
         }
     }
     return content_;
