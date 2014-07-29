@@ -16,7 +16,6 @@
 @property(nonatomic, readonly) NSURL *url;
 @property(nonatomic, readonly) BOOL isEmail;
 @property(nonatomic, readonly) BOOL isSupport;
-+ (NSArray *)linkInstructionsForPackage:(TSPackage *)package;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

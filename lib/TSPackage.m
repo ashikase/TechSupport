@@ -12,9 +12,13 @@
 
 #import "TSPackage.h"
 
+#import "TSLinkInstruction.h"
+
 #include <stdio.h>
 
-@implementation TSPackage
+@implementation TSPackage {
+    TSLinkInstruction *supportLinkInstruction_;
+}
 
 @synthesize identifier = identifier_;
 @synthesize storeIdentifier = storeIdentifier_;
@@ -23,6 +27,12 @@
 @synthesize version = version_;
 @synthesize config = config_;
 @synthesize isAppStore = isAppStore_;
+@synthesize otherLinks = otherLinks_;
+
+@dynamic storeLink;
+@dynamic supportLink;
+
+#pragma mark - Creation and Destruction
 
 + (instancetype)packageForFile:(NSString *)path {
     return [[[self alloc] initForFile:path] autorelease];
@@ -183,6 +193,25 @@
                 return nil;
             }
         }
+
+        // Parse links stored in optional config file.
+        // NOTE: Parse here in order to determine if a support link is provided.
+        NSMutableArray *instructions = [NSMutableArray new];
+        for (NSString *line in config_) {
+            if ([line hasPrefix:@"link"]) {
+                TSLinkInstruction *instruction = [self instructionWithLine:line];
+                if (instruction != nil) {
+                    if ([instruction isSupport]) {
+                        if (supportLinkInstruction_ == nil) {
+                            supportLinkInstruction_ = [instruction retain];
+                        }
+                    } else {
+                        [instructions addObject:instruction];
+                    }
+                }
+            }
+        }
+        otherLinks_ = instructions;
     }
     return self;
 }
@@ -193,7 +222,58 @@
     [name_ release];
     [author_ release];
     [config_ release];
+    [supportLinkInstruction_ release];
+    [otherLinks_ release];
     [super dealloc];
+}
+
+#pragma mark - Properties
+
+- (TSLinkInstruction *)storeLink {
+    NSString *line = nil;
+
+    if ([package isAppStore]) {
+        // Add App Store link.
+        // NOTE: Must use long long here as there are over 2 billion apps on the App Store.
+        long long item = [package.storeIdentifier longLongValue];
+        line = [NSString stringWithFormat:
+            @"link url \"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=%lld&mt=8\" as \"%@\"",
+            item, NSLocalizedString(@"VIEW_IN_APP_STORE", nil)];
+    } else {
+        // Add Cydia link.
+        line = [NSString stringWithFormat:@"link url \"cydia://package/%@\" as \"%@\"",
+            package.storeIdentifier, NSLocalizedString(@"VIEW_IN_CYDIA", nil)];
+    }
+
+    return [self instructionWithLine:line];
+}
+
+- (TSLinkInstruction *)supportLink {
+    TSLinkInstruction *instruction = nil;
+
+    if (supportLinkInstruction_ != nil) {
+        return supportLinkInstruction_;
+    } else {
+        // Return email link to contact author.
+        NSString *author = [package author];
+        if (author != nil) {
+            NSRange leftAngleRange = [author rangeOfString:@"<" options:NSBackwardsSearch];
+            if (leftAngleRange.location != NSNotFound) {
+                NSRange rightAngleRange = [author rangeOfString:@">" options:NSBackwardsSearch];
+                if (rightAngleRange.location != NSNotFound) {
+                    if (leftAngleRange.location < rightAngleRange.location) {
+                        NSRange range = NSMakeRange(leftAngleRange.location + 1, rightAngleRange.location - leftAngleRange.location - 1);
+                        NSString *emailAddress = [author substringWithRange:range];
+                        NSString *line = [NSString stringWithFormat:@"link email %@ as \"%@\" is_support",
+                                 emailAddress, NSLocalizedString(@"CONTACT_AUTHOR", nil)];
+                        instruction = [self instructionWithLine:line];
+                    }
+                }
+            }
+        }
+    }
+
+    return instruction;
 }
 
 @end

@@ -10,6 +10,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class TSLinkInstruction;
+
 @interface TSPackage : NSObject
 @property(nonatomic, readonly) NSString *identifier;
 @property(nonatomic, readonly) NSString *storeIdentifier;
@@ -18,6 +20,9 @@
 @property(nonatomic, readonly) NSString *version;
 @property(nonatomic, readonly) NSArray *config;
 @property(nonatomic, readonly) BOOL isAppStore;
+@property(nonatomic, readonly) TSLinkInstruction *storeLink;
+@property(nonatomic, readonly) TSLinkInstruction *supportLink;
+@property(nonatomic, readonly) NSArray *otherLinks;
 + (instancetype)packageForFile:(NSString *)path;
 @end
 
