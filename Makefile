@@ -24,7 +24,7 @@ after-stage::
 	- find $(THEOS_STAGING_DIR) -name '.gitkeep' -delete
 	# Copy header files to include directory.
 	- mkdir -p $(THEOS_STAGING_DIR)/Library/Frameworks/TechSupport.framework/Headers
-	- cp $(THEOS_PROJECT_DIR)/include/TechSupport/*.h $(THEOS_STAGING_DIR)/Library/Frameworks/TechSupport.framework/Headers/
+	- cp $(THEOS_PROJECT_DIR)/include/*.h $(THEOS_STAGING_DIR)/Library/Frameworks/TechSupport.framework/Headers/
 
 distclean: clean
 	- rm -f $(THEOS_PROJECT_DIR)/$(PKG_ID)*.deb
