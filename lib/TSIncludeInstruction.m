@@ -131,7 +131,8 @@ loop_exit:
 
             // Treat output as a filename to be loaded and contents returned.
             // NOTE: We do not retrieve the error as failure is not unexpected.
-            NSString *content = [[NSString alloc] initWithContentsOfFile:string usedEncoding:nil error:nil];
+            NSString *path = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            NSString *content = [[NSString alloc] initWithContentsOfFile:path usedEncoding:nil error:nil];
             if (content != nil) {
                 content_ = content;
                 [string release];
