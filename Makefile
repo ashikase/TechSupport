@@ -10,7 +10,7 @@ TechSupport_OBJC_FILES = \
     lib/TSPackage.m
 TechSupport_FRAMEWORKS = MessageUI UIKit
 TechSupport_LIBRARIES = lockdown
-ADDITIONAL_CFLAGS = -Iinclude/TechSupport -include firmware.h
+ADDITIONAL_CFLAGS = -Iinclude -include firmware.h
 
 export ARCHS = armv6 armv7 armv7s arm64
 export TARGET = iphone:clang
