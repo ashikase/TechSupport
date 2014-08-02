@@ -14,6 +14,7 @@
 @class TSPackage;
 
 @interface TSContactViewController : UIViewController
+@property(nonatomic, copy) NSString *detailEntryPlaceholderText;
 @property(nonatomic, copy) NSString *messageBody;
 - (id)initWithPackage:(TSPackage *)package linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions;
 @end

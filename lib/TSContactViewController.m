@@ -34,13 +34,14 @@ static const CGFloat kTableRowHeight = 48.0;
     UITextView *textView_;
     UITableView *tableView_;
 
-    NSString *placeholderText_;
+    NSString *defaultPlaceholderText_;
 
     TSPackage *package_;
     TSLinkInstruction *linkInstruction_;
     NSArray *includeInstructions_;
 }
 
+@synthesize detailEntryPlaceholderText = detailEntryPlaceholderText_;
 @synthesize messageBody = messageBody_;
 
 - (id)initWithPackage:(TSPackage *)package linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
@@ -50,7 +51,7 @@ static const CGFloat kTableRowHeight = 48.0;
         linkInstruction_ = [linkInstruction retain];
         includeInstructions_ = [includeInstructions copy];
 
-        placeholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
+        defaultPlaceholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
 
         UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(barButtonTapped)];
         self.navigationItem.rightBarButtonItem = buttonItem;
@@ -63,7 +64,8 @@ static const CGFloat kTableRowHeight = 48.0;
     [textView_ release];
     [tableView_ release];
 
-    [placeholderText_ release];
+    [defaultPlaceholderText_ release];
+    [detailEntryPlaceholderText_ release];
     [messageBody_ release];
 
     [package_ release];
@@ -84,7 +86,7 @@ static const CGFloat kTableRowHeight = 48.0;
     textView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     textView.delegate = self;
     textView.font = [UIFont systemFontOfSize:18.0];
-    textView.text = placeholderText_;
+    textView.text = [self detailEntryPlaceholderText];
     textView.textColor = [UIColor lightGrayColor];
     textView_ = textView;
 
@@ -145,7 +147,7 @@ static const CGFloat kTableRowHeight = 48.0;
 
     // Add details from user.
     NSString *text = textView_.text;
-    if (![text isEqualToString:placeholderText_]) {
+    if (![text isEqualToString:[self detailEntryPlaceholderText]]) {
         [string appendFormat:
             @"Details from the user:\n"
             "-------------------------------------------\n"
@@ -203,6 +205,12 @@ static const CGFloat kTableRowHeight = 48.0;
 #endif
 
     return urlsString;
+}
+
+#pragma mark - Properties
+
+- (NSString *)detailEntryPlaceholderText {
+    return detailEntryPlaceholderText_ ?: defaultPlaceholderText_;
 }
 
 #pragma mark - MFMailComposeViewControllerDelegate
@@ -368,7 +376,7 @@ static const CGFloat kTableRowHeight = 48.0;
 #pragma mark - UITextViewDelegate
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-    if ([textView.text isEqualToString:placeholderText_]) {
+    if ([textView.text isEqualToString:[self detailEntryPlaceholderText]]) {
          textView.text = @"";
          textView.textColor = [UIColor blackColor];
     }
@@ -377,7 +385,7 @@ static const CGFloat kTableRowHeight = 48.0;
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
     if ([textView.text isEqualToString:@""]) {
-        textView.text = placeholderText_;
+        textView.text = [self detailEntryPlaceholderText];
         textView.textColor = [UIColor lightGrayColor];
     }
     [textView resignFirstResponder];
