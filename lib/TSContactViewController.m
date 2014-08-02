@@ -43,6 +43,7 @@ static const CGFloat kTableRowHeight = 48.0;
 
 @synthesize detailEntryPlaceholderText = detailEntryPlaceholderText_;
 @synthesize messageBody = messageBody_;
+@synthesize requiresDetailsFromUser = requiresDetailsFromUser_;
 
 - (id)initWithPackage:(TSPackage *)package linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
     self = [super init];
@@ -244,6 +245,16 @@ static const CGFloat kTableRowHeight = 48.0;
 
 - (void)barButtonTapped {
     NSString *okMessage = NSLocalizedString(@"OK", nil);
+
+    if ([self requiresDetailsFromUser] && [textView.text isEqualToString:[self detailEntryPlaceholderText]]) {
+        NSString *detailRequiredTitle = NSLocalizedString(@"DETAIL_REQUIRED_TITLE", nil);
+        NSString *detailRequiredMessage = NSLocalizedString(@"DETAIL_REQUIRED_MESSAGE", nil);
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:detailRequiredTitle message:detailRequiredMessage
+            delegate:nil cancelButtonTitle:okMessage otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+        return;
+    }
 
     if ([linkInstruction_ isEmail]) {
         if ([MFMailComposeViewController canSendMail]) {

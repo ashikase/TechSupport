@@ -32,6 +32,14 @@
 @property(nonatomic, copy) NSString *messageBody;
 
 /**
+ * A Boolean value that determines whether a user must enter details.
+ *
+ * This value is NO by default. When YES, the user will not be able to generate
+ * the email without entering text into the detail area.
+ */
+@property(nonatomic, assign, getter = doesRequireDetailsFromUser) BOOL requiresDetailsFromUser;
+
+/**
  * Initializer.
  *
  * @param package The package to generate an email for.
