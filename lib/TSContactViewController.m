@@ -45,6 +45,8 @@ static const CGFloat kTableRowHeight = 48.0;
 @synthesize messageBody = messageBody_;
 @synthesize requiresDetailsFromUser = requiresDetailsFromUser_;
 
+#pragma mark - Creation & Destruction
+
 - (id)initWithPackage:(TSPackage *)package linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
     self = [super init];
     if (self != nil) {
@@ -214,34 +216,11 @@ static const CGFloat kTableRowHeight = 48.0;
     return detailEntryPlaceholderText_ ?: defaultPlaceholderText_;
 }
 
-#pragma mark - MFMailComposeViewControllerDelegate
+#pragma mark - Actions (UIBarButtonItem)
 
-- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
-    // Display error on failure.
-    if (result == MFMailComposeResultFailed) {
-        NSString *message = [NSLocalizedString(@"EMAIL_FAILED_1", nil) stringByAppendingString:[error localizedDescription]];
-        NSString *okMessage = NSLocalizedString(@"OK", nil);
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil
-            cancelButtonTitle:okMessage otherButtonTitles:nil];
-        [alert show];
-        [alert release];
-    }
-
-    // Dismiss mail controller and optionally return to previous controller.
-    if (IOS_LT(6_0)) {
-        [self dismissModalViewControllerAnimated:YES];
-    } else {
-        if ((result == MFMailComposeResultCancelled) || (result == MFMailComposeResultFailed)) {
-            [self dismissViewControllerAnimated:YES completion:nil];
-        } else {
-            [self dismissViewControllerAnimated:YES completion:^{
-                [self.navigationController popViewControllerAnimated:YES];
-            }];
-        }
-    }
+- (void)doneButtonTapped {
+     [textView_ resignFirstResponder];
 }
-
-#pragma mark - UIBarButtonItem Actions
 
 - (void)generateButtonTapped {
     NSString *okMessage = NSLocalizedString(@"OK", nil);
@@ -309,11 +288,33 @@ static const CGFloat kTableRowHeight = 48.0;
     }
 }
 
-- (void)doneButtonTapped {
-     [textView_ resignFirstResponder];
-}
+#pragma mark - Delegate (MFMailComposeViewControllerDelegate)
 
-#pragma mark - UITableViewDataSource
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
+    // Display error on failure.
+    if (result == MFMailComposeResultFailed) {
+        NSString *message = [NSLocalizedString(@"EMAIL_FAILED_1", nil) stringByAppendingString:[error localizedDescription]];
+        NSString *okMessage = NSLocalizedString(@"OK", nil);
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil
+            cancelButtonTitle:okMessage otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+    }
+
+    // Dismiss mail controller and optionally return to previous controller.
+    if (IOS_LT(6_0)) {
+        [self dismissModalViewControllerAnimated:YES];
+    } else {
+        if ((result == MFMailComposeResultCancelled) || (result == MFMailComposeResultFailed)) {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        } else {
+            [self dismissViewControllerAnimated:YES completion:^{
+                [self.navigationController popViewControllerAnimated:YES];
+            }];
+        }
+    }
+}
+#pragma mark - Delegate (UITableViewDataSource)
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
@@ -362,7 +363,7 @@ static const CGFloat kTableRowHeight = 48.0;
     return cell;
 }
 
-#pragma mark - UITableViewDelegate
+#pragma mark - Delegate (UITableViewDelegate)
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     TSIncludeInstruction *instruction = [includeInstructions_ objectAtIndex:indexPath.row];
@@ -384,7 +385,7 @@ static const CGFloat kTableRowHeight = 48.0;
     return kTableRowHeight;
 }
 
-#pragma mark - UITextViewDelegate
+#pragma mark - Delegate (UITextViewDelegate)
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
     if ([textView.text isEqualToString:[self detailEntryPlaceholderText]]) {
