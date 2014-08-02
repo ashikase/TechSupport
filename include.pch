@@ -1,0 +1,3 @@
+#undef NSLocalizedString
+#define NSLocalizedString(key, comment) \
+    [[NSBundle bundleWithIdentifier:@FRAMEWORK_ID] localizedStringForKey:(key) value:@"" table:nil]

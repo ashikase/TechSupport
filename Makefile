@@ -1,5 +1,5 @@
 FRAMEWORK_NAME = TechSupport
-PKG_ID = jp.ashikase.techsupport
+FRAMEWORK_ID = jp.ashikase.TechSupport
 
 TechSupport_OBJC_FILES = \
     lib/TSContactViewController.m \
@@ -10,7 +10,7 @@ TechSupport_OBJC_FILES = \
     lib/TSPackage.m
 TechSupport_FRAMEWORKS = MessageUI UIKit
 TechSupport_LIBRARIES = lockdown
-ADDITIONAL_CFLAGS = -Iinclude -include firmware.h
+ADDITIONAL_CFLAGS = -DFRAMEWORK_ID=\"$(FRAMEWORK_ID)\" -Iinclude -include firmware.h -include include.pch
 
 export ARCHS = armv6 armv7 armv7s arm64
 export TARGET = iphone:clang
@@ -29,7 +29,7 @@ after-stage::
 	- cp $(THEOS_PROJECT_DIR)/include/*.h $(THEOS_STAGING_DIR)/Library/Frameworks/TechSupport.framework/Headers/
 
 distclean: clean
-	- rm -f $(THEOS_PROJECT_DIR)/$(PKG_ID)*.deb
+	- rm -f $(THEOS_PROJECT_DIR)/$(call lc,$(FRAMEWORK_ID))*.deb
 	- rm -f $(THEOS_PROJECT_DIR)/.theos/packages/*
 
 doc:
