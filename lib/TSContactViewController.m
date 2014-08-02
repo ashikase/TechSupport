@@ -42,6 +42,8 @@ static const CGFloat kTableRowHeight = 48.0;
     NSArray *includeInstructions_;
 }
 
+@synthesize messageBody = messageBody_;
+
 - (id)initWithPackage:(TSPackage *)package suspect:(NSString *)suspect linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
     self = [super init];
     if (self != nil) {
@@ -65,6 +67,7 @@ static const CGFloat kTableRowHeight = 48.0;
     [tableView_ release];
 
     [placeholderText_ release];
+    [messageBody_ release];
 
     [package_ release];
     [suspect_ release];
@@ -129,40 +132,20 @@ static const CGFloat kTableRowHeight = 48.0;
 
 #pragma mark - Other
 
-- (NSString *)messageBody {
+- (NSString *)messageBodyWithDetails {
     NSMutableString *string = [NSMutableString string];
 
     // Add device information.
     UIDevice *device = [UIDevice currentDevice];
     [string appendFormat:@"%@ %@: %@\n\n\n", platformVersion(), [device systemVersion], uniqueId()];
 
-    // Add default message.
-    BOOL isForward = ([linkInstruction_ recipients] == nil);
-    if (!isForward) {
-        NSString *author = [package_ author];
-        if (author != nil) {
-            NSRange range = [author rangeOfString:@"<"];
-            if (range.location != NSNotFound) {
-                author = [author substringToIndex:range.location];
-            }
-            author = [author stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        }
-        if ([author length] == 0) {
-            author = @"developer";
-        }
-        [string appendFormat:@"Dear %@,\n\n", author];
+    // Add message body.
+    NSCharacterSet *characterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    NSString *messageBody = [self messageBody];
+    if ([messageBody length] > 0) {
+        [string appendString:[messageBody stringByTrimmingCharactersInSet:characterSet];
+        [string appendString:@"\n\n\n"];
     }
-    if (package_.isAppStore) {
-        [string appendFormat: @"The app \"%@\" has recently crashed.\n\n", package_.name];
-    } else {
-        [string appendFormat:@"The file \"%@\" of the product \"%@\" has possibly caused a crash.\n\n", suspect_, package_.name];
-    }
-    [string appendString:
-        @"Relevant files (e.g. crash log and syslog) are attached.\n"
-        "\n"
-        "Thank you for your attention.\n"
-        "\n\n"
-        ];
 
     // Add details from user.
     NSString *text = textView_.text;
@@ -173,7 +156,7 @@ static const CGFloat kTableRowHeight = 48.0;
             "%@\n"
             "-------------------------------------------\n"
             "\n\n",
-            [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+            [text stringByTrimmingCharactersInSet:characterSet]];
     }
 
     // Add CrashReport line.
@@ -263,7 +246,7 @@ static const CGFloat kTableRowHeight = 48.0;
             // Setup mail controller.
             MFMailComposeViewController *controller = [MFMailComposeViewController new];
             [controller setMailComposeDelegate:self];
-            [controller setMessageBody:[self messageBody] isHTML:NO];
+            [controller setMessageBody:[self messageBodyWithDetails] isHTML:NO];
             [controller setSubject:[NSString stringWithFormat:@"Crash Report: %@ (%@)",
                 (package_.name ?: @"(unknown product)"),
                 (package_.version ?: @"unknown version")
