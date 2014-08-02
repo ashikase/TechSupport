@@ -54,7 +54,7 @@ static const CGFloat kTableRowHeight = 48.0;
 
         defaultPlaceholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
 
-        UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(barButtonTapped)];
+        UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(generateButtonTapped)];
         self.navigationItem.rightBarButtonItem = buttonItem;
         [buttonItem release];
     }
@@ -243,7 +243,7 @@ static const CGFloat kTableRowHeight = 48.0;
 
 #pragma mark - UIBarButtonItem Actions
 
-- (void)barButtonTapped {
+- (void)generateButtonTapped {
     NSString *okMessage = NSLocalizedString(@"OK", nil);
 
     if ([self requiresDetailsFromUser] && [textView.text isEqualToString:[self detailEntryPlaceholderText]]) {
