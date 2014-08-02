@@ -15,7 +15,7 @@
 
 @interface TSContactViewController : UIViewController
 @property(nonatomic, copy) NSString *messageBody;
-- (id)initWithPackage:(TSPackage *)package suspect:(NSString *)suspect linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions;
+- (id)initWithPackage:(TSPackage *)package linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

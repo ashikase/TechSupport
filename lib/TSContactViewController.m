@@ -37,24 +37,21 @@ static const CGFloat kTableRowHeight = 48.0;
     NSString *placeholderText_;
 
     TSPackage *package_;
-    NSString *suspect_;
     TSLinkInstruction *linkInstruction_;
     NSArray *includeInstructions_;
 }
 
 @synthesize messageBody = messageBody_;
 
-- (id)initWithPackage:(TSPackage *)package suspect:(NSString *)suspect linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
+- (id)initWithPackage:(TSPackage *)package linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
     self = [super init];
     if (self != nil) {
         package_ = [package retain];
-        suspect_ = [suspect copy];
         linkInstruction_ = [linkInstruction retain];
         includeInstructions_ = [includeInstructions copy];
 
         placeholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
 
-        self.title = [suspect lastPathComponent];
         UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(barButtonTapped)];
         self.navigationItem.rightBarButtonItem = buttonItem;
         [buttonItem release];
@@ -70,7 +67,6 @@ static const CGFloat kTableRowHeight = 48.0;
     [messageBody_ release];
 
     [package_ release];
-    [suspect_ release];
     [linkInstruction_ release];
     [includeInstructions_ release];
 
@@ -143,7 +139,7 @@ static const CGFloat kTableRowHeight = 48.0;
     NSCharacterSet *characterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
     NSString *messageBody = [self messageBody];
     if ([messageBody length] > 0) {
-        [string appendString:[messageBody stringByTrimmingCharactersInSet:characterSet];
+        [string appendString:[messageBody stringByTrimmingCharactersInSet:characterSet]];
         [string appendString:@"\n\n\n"];
     }
 
