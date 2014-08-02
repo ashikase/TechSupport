@@ -37,7 +37,7 @@
  * This value is NO by default. When YES, the user will not be able to generate
  * the email without entering text into the detail area.
  */
-@property(nonatomic, assign, getter = doesRequireDetailsFromUser) BOOL requiresDetailsFromUser;
+@property(nonatomic, assign) BOOL requiresDetailsFromUser;
 
 /**
  * Initializer.

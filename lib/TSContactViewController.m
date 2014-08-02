@@ -225,7 +225,7 @@ static const CGFloat kTableRowHeight = 48.0;
 - (void)generateButtonTapped {
     NSString *okMessage = NSLocalizedString(@"OK", nil);
 
-    if ([self requiresDetailsFromUser] && [textView.text isEqualToString:[self detailEntryPlaceholderText]]) {
+    if ([self requiresDetailsFromUser] && [textView_.text isEqualToString:[self detailEntryPlaceholderText]]) {
         NSString *detailRequiredTitle = NSLocalizedString(@"DETAIL_REQUIRED_TITLE", nil);
         NSString *detailRequiredMessage = NSLocalizedString(@"DETAIL_REQUIRED_MESSAGE", nil);
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:detailRequiredTitle message:detailRequiredMessage
