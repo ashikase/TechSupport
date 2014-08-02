@@ -20,6 +20,8 @@ include theos/makefiles/common.mk
 include $(THEOS)/makefiles/framework.mk
 
 after-stage::
+	# Copy localization files.
+	- cp -a $(THEOS_PROJECT_DIR)/Localization/TechSupport/*.lproj $(THEOS_STAGING_DIR)/Library/Frameworks/TechSupport.framework/Resources/
 	# Remove repository-related files.
 	- find $(THEOS_STAGING_DIR) -name '.gitkeep' -delete
 	# Copy header files to include directory.
