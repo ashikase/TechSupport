@@ -29,3 +29,20 @@ after-stage::
 distclean: clean
 	- rm -f $(THEOS_PROJECT_DIR)/$(PKG_ID)*.deb
 	- rm -f $(THEOS_PROJECT_DIR)/.theos/packages/*
+
+doc:
+	- appledoc \
+		--project-name $(FRAMEWORK_NAME) \
+		--project-company "Lance Fetters (aka. ashikase)" \
+		--company-id "jp.ashikase" \
+		--exit-threshold 2 \
+		--ignore "*.m" \
+		--keep-intermediate-files \
+		--keep-undocumented-objects \
+		--keep-undocumented-members \
+		--logformat xcode \
+		--no-install-docset \
+		--no-repeat-first-par \
+		--no-warn-invalid-crossref \
+		--output Documentation \
+		$(THEOS_PROJECT_DIR)/include
