@@ -138,7 +138,7 @@ static const CGFloat kTableRowHeight = 48.0;
 
     // Add device information.
     UIDevice *device = [UIDevice currentDevice];
-    [string appendFormat:@"%@ %@: %@\n\n\n", platformVersion(), [device systemVersion], uniqueId()];
+    [string appendFormat:@"%@ %@: %@\n\n\n", platformVersion(), [device systemVersion], uniqueDeviceIdentifier()];
 
     // Add message body.
     NSCharacterSet *characterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
