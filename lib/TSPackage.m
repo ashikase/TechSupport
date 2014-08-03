@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 @implementation TSPackage {
+    NSString *bundlePath_;
     NSString *libraryPath_;
     TSLinkInstruction *supportLinkInstruction_;
 }
@@ -36,6 +37,98 @@
 @dynamic supportLink;
 
 #pragma mark - Creation and Destruction
+
+static void initDebianPackage(TSPackage *self) {
+    FILE *f = popen([[NSString stringWithFormat:@"dpkg-query -p %@ | grep -E \"^(Name|Author|Version):\"", self->identifier_] UTF8String], "r");
+    if (f != NULL) {
+        // Determine name, author and version.
+        NSMutableData *data = [NSMutableData new];
+        char buf[1025];
+        size_t maxSize = (sizeof(buf) - 1);
+        while (!feof(f)) {
+            if (fgets(buf, maxSize, f)) {
+                buf[maxSize] = '\0';
+
+                char *newlineLocation = strrchr(buf, '\n');
+                if (newlineLocation != NULL) {
+                    [data appendBytes:buf length:(NSUInteger)(newlineLocation - buf)];
+
+                    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    NSUInteger firstColon = [string rangeOfString:@":"].location;
+                    if (firstColon != NSNotFound) {
+                        NSUInteger length = [string length];
+                        if (length > (firstColon + 1)) {
+                            NSCharacterSet *set = [[NSCharacterSet whitespaceCharacterSet] invertedSet];
+                            NSRange range = NSMakeRange((firstColon + 1), (length - firstColon - 1));
+                            NSUInteger firstNonSpace = [string rangeOfCharacterFromSet:set options:0 range:range].location;
+                            NSString *value = [string substringFromIndex:firstNonSpace];
+                            if ([string hasPrefix:@"Name:"]) {
+                                self->name_ = [value retain];
+                            } else if ([string hasPrefix:@"Author:"]) {
+                                self->author_ = [value retain];
+                            } else {
+                                self->version_ = [value retain];
+                            }
+                        }
+                    }
+                    [string release];
+                    [data setLength:0];
+                } else {
+                    [data appendBytes:buf length:maxSize];
+                }
+            }
+        }
+        [data release];
+        pclose(f);
+    }
+}
+
+static void initCommon(TSPackage *self) {
+    NSString *configPath = nil;
+    if (self->isAppStore_) {
+        // Store path to related Library directory.
+        self->libraryPath_ = [[[self->bundlePath_ stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Library"] retain];
+
+        // Determine path to related optional config file.
+        configPath = [self->bundlePath_ stringByAppendingPathComponent:@"crash_reporter"];
+    } else {
+        // Store path to related Library directory.
+        self->libraryPath_ = @"/var/mobile/Library";
+
+        // Determine path to related optional config file.
+        configPath = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", self->identifier_];
+    }
+
+    // Parse includes and links stored in optional config file.
+    // NOTE: Parse here in order to determine if a support link is provided.
+    NSString *configString = [[NSString alloc] initWithContentsOfFile:configPath usedEncoding:NULL error:NULL];
+    if ([configString length] > 0) {
+        NSMutableArray *includeInstructions = [NSMutableArray new];
+        NSMutableArray *linkInstructions = [NSMutableArray new];
+        for (NSString *string in [configString componentsSeparatedByString:@"\n"]) {
+            if ([string hasPrefix:@"include"]) {
+                TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithString:string];
+                if (instruction != nil) {
+                    [includeInstructions addObject:instruction];
+                }
+            } else if ([string hasPrefix:@"link"]) {
+                TSLinkInstruction *instruction = [TSLinkInstruction instructionWithString:string];
+                if (instruction != nil) {
+                    if ([instruction isSupport]) {
+                        if (self->supportLinkInstruction_ == nil) {
+                            self->supportLinkInstruction_ = [instruction retain];
+                        }
+                    } else {
+                        [linkInstructions addObject:instruction];
+                    }
+                }
+            }
+        }
+        self->otherAttachments_ = includeInstructions;
+        self->otherLinks_ = linkInstructions;
+    }
+    [configString release];
+}
 
 + (instancetype)packageForFile:(NSString *)path {
     return [[[self alloc] initForFile:path] autorelease];
@@ -72,68 +165,20 @@
         }
 
         // Determine package type, name and author, and load optional config.
-        NSString *configPath = nil;
         if (identifier_ != nil) {
             // Is a dpkg.
-            f = popen([[NSString stringWithFormat:@"dpkg-query -p %@ | grep -E \"^(Name|Author|Version):\"", identifier_] UTF8String], "r");
-            if (f != NULL) {
-                // Determine name, author and version.
-                NSMutableData *data = [NSMutableData new];
-                char buf[1025];
-                size_t maxSize = (sizeof(buf) - 1);
-                while (!feof(f)) {
-                    if (fgets(buf, maxSize, f)) {
-                        buf[maxSize] = '\0';
+            initDebianPackage(self);
 
-                        char *newlineLocation = strrchr(buf, '\n');
-                        if (newlineLocation != NULL) {
-                            [data appendBytes:buf length:(NSUInteger)(newlineLocation - buf)];
-
-                            NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                            NSUInteger firstColon = [string rangeOfString:@":"].location;
-                            if (firstColon != NSNotFound) {
-                                NSUInteger length = [string length];
-                                if (length > (firstColon + 1)) {
-                                    NSCharacterSet *set = [[NSCharacterSet whitespaceCharacterSet] invertedSet];
-                                    NSRange range = NSMakeRange((firstColon + 1), (length - firstColon - 1));
-                                    NSUInteger firstNonSpace = [string rangeOfCharacterFromSet:set options:0 range:range].location;
-                                    NSString *value = [string substringFromIndex:firstNonSpace];
-                                    if ([string hasPrefix:@"Name:"]) {
-                                        name_ = [value retain];
-                                    } else if ([string hasPrefix:@"Author:"]) {
-                                        author_ = [value retain];
-                                    } else {
-                                        version_ = [value retain];
-                                    }
-                                }
-                            }
-                            [string release];
-                            [data setLength:0];
-                        } else {
-                            [data appendBytes:buf length:maxSize];
-                        }
-                    }
-                }
-                [data release];
-                pclose(f);
-            }
+            // Determine store identifier.
+            storeIdentifier_ = [identifier_ copy];
 
             // Ensure that package has a name.
             if (name_ == nil) {
                 // Use name of contained file.
                 name_ = [[path lastPathComponent] retain];
             }
-
-            // Determine store identifier.
-            storeIdentifier_ = [identifier_ copy];
-
-            // Store path to related Library directory.
-            libraryPath_ = @"/var/mobile/Library";
-
-            // Determine path to related optional config file.
-            configPath = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", identifier_];
         } else {
-            // Not a dpkg package. Check if it's an AppStore app.
+            // Not a dpkg package. Check if it's an App Store app.
             if ([path hasPrefix:@"/var/mobile/Applications/"]) {
                 // Check if any component in the path has a .app suffix.
                 NSString *appBundlePath = path;
@@ -147,6 +192,7 @@
 
                 // If we made it this far, this is an AppStore package.
                 isAppStore_ = YES;
+                bundlePath_ = [appBundlePath retain];
 
                 // Determine identifier, store identifier, name and author.
                 NSString *metadataPath = [[appBundlePath stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"iTunesMetadata.plist"];
@@ -156,48 +202,15 @@
                 name_ = [[metadata objectForKey:@"itemName"] retain];
                 author_ = [[metadata objectForKey:@"artistName"] retain];
                 [metadata release];
-
-                // Store path to related Library directory.
-                libraryPath_ = [[[appBundlePath stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Library"] retain];
-
-                // Determine path to related optional config file.
-                configPath = [appBundlePath stringByAppendingPathComponent:@"crash_reporter"];
             } else {
-                // Was not installed via either Cydia (dpkg) or AppStore; unsupported.
+                // Was not installed via either Cydia (dpkg) or App Store; unsupported.
                 [self release];
                 return nil;
             }
         }
 
-        // Parse includes and links stored in optional config file.
-        // NOTE: Parse here in order to determine if a support link is provided.
-        NSString *configString = [[NSString alloc] initWithContentsOfFile:configPath usedEncoding:NULL error:NULL];
-        if ([configString length] > 0) {
-            NSMutableArray *includeInstructions = [NSMutableArray new];
-            NSMutableArray *linkInstructions = [NSMutableArray new];
-            for (NSString *string in [configString componentsSeparatedByString:@"\n"]) {
-                if ([string hasPrefix:@"include"]) {
-                    TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithString:string];
-                    if (instruction != nil) {
-                        [includeInstructions addObject:instruction];
-                    }
-                } else if ([string hasPrefix:@"link"]) {
-                    TSLinkInstruction *instruction = [TSLinkInstruction instructionWithString:string];
-                    if (instruction != nil) {
-                        if ([instruction isSupport]) {
-                            if (supportLinkInstruction_ == nil) {
-                                supportLinkInstruction_ = [instruction retain];
-                            }
-                        } else {
-                            [linkInstructions addObject:instruction];
-                        }
-                    }
-                }
-            }
-            otherAttachments_ = includeInstructions;
-            otherLinks_ = linkInstructions;
-        }
-        [configString release];
+        // Load optional config.
+        initCommon(self);
     }
     return self;
 }
@@ -209,6 +222,7 @@
     [author_ release];
     [otherLinks_ release];
     [otherAttachments_ release];
+    [bundlePath_ release];
     [libraryPath_ release];
     [supportLinkInstruction_ release];
     [super dealloc];
