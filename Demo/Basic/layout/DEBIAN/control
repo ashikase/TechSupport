@@ -1,0 +1,11 @@
+Package: jp.ashikase.techsupport.demo.basic
+Name: TechSupport Basic Demo
+Version: 1.0.0
+Description: App to demonstrate use of TechSupport framework.
+Architecture: iphoneos-arm
+Pre-Depends: firmware (>=3.0)
+Homepage: http://github.com/ashikase/TechSupport
+Author: Lance Fetters (ashikase) <support@ashikase.com>
+Section: Development
+Tag: role::developer
+dev: ashikase
