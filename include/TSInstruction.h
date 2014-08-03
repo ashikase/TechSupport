@@ -15,7 +15,7 @@
 @interface TSInstruction : NSObject
 @property(nonatomic, copy) NSString *title;
 @property(nonatomic, readonly) NSArray *tokens;
-+ (instancetype)instructionWithLine:(NSString *)line;
++ (instancetype)instructionWithString:(NSString *)string;
 + (void)flushInstructions;
 - (instancetype)initWithTokens:(NSArray *)tokens;
 - (NSComparisonResult)compare:(TSInstruction *)other;

@@ -175,14 +175,14 @@
         if ([configString length] > 0) {
             NSMutableArray *includeInstructions = [NSMutableArray new];
             NSMutableArray *linkInstructions = [NSMutableArray new];
-            for (NSString *line in [configString componentsSeparatedByString:@"\n"]) {
-                if ([line hasPrefix:@"include"]) {
-                    TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithLine:line];
+            for (NSString *string in [configString componentsSeparatedByString:@"\n"]) {
+                if ([string hasPrefix:@"include"]) {
+                    TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithString:string];
                     if (instruction != nil) {
                         [includeInstructions addObject:instruction];
                     }
-                } else if ([line hasPrefix:@"link"]) {
-                    TSLinkInstruction *instruction = [TSLinkInstruction instructionWithLine:line];
+                } else if ([string hasPrefix:@"link"]) {
+                    TSLinkInstruction *instruction = [TSLinkInstruction instructionWithString:string];
                     if (instruction != nil) {
                         if ([instruction isSupport]) {
                             if (supportLinkInstruction_ == nil) {
@@ -219,23 +219,23 @@
 - (TSLinkInstruction *)storeLink {
     TSLinkInstruction *instruction = nil;
 
-    NSString *line = nil;
+    NSString *string = nil;
     if ([self isAppStore]) {
         // Add App Store link.
         // NOTE: Must use long long here as there are over 2 billion apps on the App Store.
         long long item = [[self storeIdentifier] longLongValue];
-        line = [[NSString alloc] initWithFormat:
+        string = [[NSString alloc] initWithFormat:
             @"link url \"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=%lld&mt=8\" as \"%@\"",
             item, NSLocalizedString(@"VIEW_IN_APP_STORE", nil)];
     } else {
         // Add Cydia link.
-        line = [[NSString alloc] initWithFormat:@"link url \"cydia://package/%@\" as \"%@\"",
+        string = [[NSString alloc] initWithFormat:@"link url \"cydia://package/%@\" as \"%@\"",
             [self storeIdentifier], NSLocalizedString(@"VIEW_IN_CYDIA", nil)];
     }
 
-    if (line != nil) {
-        instruction = [TSLinkInstruction instructionWithLine:line];
-        [line release];
+    if (string != nil) {
+        instruction = [TSLinkInstruction instructionWithString:string];
+        [string release];
     }
 
     return instruction;
@@ -257,10 +257,10 @@
                     if (leftAngleRange.location < rightAngleRange.location) {
                         NSRange range = NSMakeRange(leftAngleRange.location + 1, rightAngleRange.location - leftAngleRange.location - 1);
                         NSString *emailAddress = [author substringWithRange:range];
-                        NSString *line = [[NSString alloc] initWithFormat:@"link email %@ as \"%@\" is_support",
+                        NSString *string = [[NSString alloc] initWithFormat:@"link email %@ as \"%@\" is_support",
                                  emailAddress, NSLocalizedString(@"CONTACT_AUTHOR", nil)];
-                        instruction = [TSLinkInstruction instructionWithLine:line];
-                        [line release];
+                        instruction = [TSLinkInstruction instructionWithString:string];
+                        [string release];
                     }
                 }
             }
@@ -276,9 +276,9 @@
     NSString *subpath = [[NSString alloc] initWithFormat:@"Preferences/%@.plist", identifier_];
     NSString *filepath = [libraryPath_ stringByAppendingPathComponent:subpath];
     if ([[NSFileManager defaultManager] fileExistsAtPath:filepath]) {
-        NSString *line = [[NSString alloc] initWithFormat:@"include as Preferences plist \"%@\"", filepath];
-        instruction = [TSIncludeInstruction instructionWithLine:line];
-        [line release];
+        NSString *string = [[NSString alloc] initWithFormat:@"include as Preferences plist \"%@\"", filepath];
+        instruction = [TSIncludeInstruction instructionWithString:string];
+        [string release];
     }
     [subpath release];
 

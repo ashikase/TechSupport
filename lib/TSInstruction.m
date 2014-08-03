@@ -70,14 +70,14 @@ static NSMutableDictionary *instructions$ = nil;
 @synthesize title = title_;
 @synthesize tokens = tokens_;
 
-+ (instancetype)instructionWithLine:(NSString *)line {
++ (instancetype)instructionWithString:(NSString *)string {
     if (instructions$ == nil) {
         instructions$ = [NSMutableDictionary new];
     }
 
-    TSInstruction *instruction = [instructions$ objectForKey:line];
+    TSInstruction *instruction = [instructions$ objectForKey:string];
     if (instruction == nil) {
-        NSArray *tokens = tokenize(line);
+        NSArray *tokens = tokenize(string);
         NSUInteger count = [tokens count];
         if (count > 0) {
             Class klass = Nil;
@@ -92,7 +92,7 @@ static NSMutableDictionary *instructions$ = nil;
             if (klass != Nil) {
                 instruction = [[klass alloc] initWithTokens:tokens];
                 if (instruction != nil) {
-                    [instructions$ setObject:instruction forKey:line];
+                    [instructions$ setObject:instruction forKey:string];
                     [instruction release];
                 }
             }
