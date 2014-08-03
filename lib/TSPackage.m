@@ -15,6 +15,7 @@
 #import "TSIncludeInstruction.h"
 #import "TSLinkInstruction.h"
 
+#include <sys/stat.h>
 #include <stdio.h>
 
 @implementation TSPackage {
@@ -134,6 +135,10 @@ static void initCommon(TSPackage *self) {
     return [[[self alloc] initForFile:path] autorelease];
 }
 
++ (instancetype)packageWithIdentifier:(NSString *)identifier {
+    return [[[self alloc] initWithIdentifier:identifier] autorelease];
+}
+
 - (instancetype)initForFile:(NSString *)path {
     self = [super init];
     if (self != nil) {
@@ -203,6 +208,88 @@ static void initCommon(TSPackage *self) {
                 author_ = [[metadata objectForKey:@"artistName"] retain];
                 [metadata release];
             } else {
+                // Was not installed via either Cydia (dpkg) or App Store; unsupported.
+                [self release];
+                return nil;
+            }
+        }
+
+        // Load optional config.
+        initCommon(self);
+    }
+    return self;
+}
+
+- (instancetype)initWithIdentifier:(NSString *)identifier {
+    self = [super init];
+    if (self != nil) {
+        // Store the package identifier.
+        identifier_ = [identifier copy];
+
+        // Determine type of package.
+        NSString *filepath = [[NSString alloc] initWithFormat:@"/var/lib/dpkg/info/%@.list", identifier];
+        struct stat buf;
+        BOOL isDpkg = (stat([filepath UTF8String], &buf) == 0);
+        [filepath release];
+
+        // Determine package type, name and author.
+        if (isDpkg) {
+            // Is a dpkg.
+            initDebianPackage(self);
+
+            // Determine store identifier.
+            storeIdentifier_ = [identifier copy];
+
+            // Ensure that package has a name.
+            if (self->name_ == nil) {
+                // Use name of contained file.
+                self->name_ = [identifier retain];
+            }
+        } else {
+            // Not a dpkg package. Check if it's an App Store app.
+            NSFileManager *fileMan = [NSFileManager defaultManager];
+            NSError *error = nil;
+            NSArray *contents = [fileMan contentsOfDirectoryAtPath:@"/var/mobile/Applications" error:&error];
+            if (contents != nil) {
+                for (NSString *path in contents) {
+                    NSString *metadataPath = [path stringByAppendingPathComponent:@"iTunesMetadata.plist"];
+                    NSDictionary *metadata = [[NSDictionary alloc] initWithContentsOfFile:metadataPath];
+                    if (metadata != nil) {
+                        if ([[metadata objectForKey:@"softwareVersionBundleId"] isEqualToString:identifier]) {
+                            // Found the package. Determine the bundle path.
+                            NSArray *subcontents = [fileMan contentsOfDirectoryAtPath:path error:&error];
+                            if (subcontents != nil) {
+                                for (NSString *subpath in subcontents) {
+                                    if ([subpath hasSuffix:@".app"]) {
+                                        isAppStore_ = YES;
+                                        bundlePath_ = [subpath retain];
+
+                                        // Determine store identifier, name and author.
+                                        storeIdentifier_ = [[metadata objectForKey:@"itemId"] retain];
+                                        name_ = [[metadata objectForKey:@"itemName"] retain];
+                                        author_ = [[metadata objectForKey:@"artistName"] retain];
+
+                                        // Stop searching subcontents.
+                                        break;
+                                    }
+                                }
+                            } else {
+                                NSLog(@"ERROR: Failed to get contents of App Store app's container: %@.", [error localizedDescription]);
+                            }
+                        }
+                        [metadata release];
+
+                        if (isAppStore_) {
+                            // Stop searching contents.
+                            break;
+                        }
+                    }
+                }
+            } else {
+                NSLog(@"ERROR: Failed to get contents of App Store apps directory: %@.", [error localizedDescription]);
+            }
+
+            if (!isAppStore_) {
                 // Was not installed via either Cydia (dpkg) or App Store; unsupported.
                 [self release];
                 return nil;

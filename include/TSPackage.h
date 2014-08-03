@@ -26,6 +26,9 @@
 @property(nonatomic, readonly) TSIncludeInstruction *preferencesAttachment;
 @property(nonatomic, readonly) NSArray *otherAttachments;
 + (instancetype)packageForFile:(NSString *)path;
++ (instancetype)packageWithIdentifier:(NSString *)identifier;
+- (instancetype)initForFile:(NSString *)path;
+- (instancetype)initWithIdentifier:(NSString *)identifier;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */
