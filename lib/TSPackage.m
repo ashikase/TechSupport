@@ -284,7 +284,7 @@
     return instruction;
 }
 
-- (NSArray *)supportAttachments {
+- (NSArray *)otherAttachments {
     NSMutableArray *instructions = [NSMutableArray new];
 
     for (NSString *line in config_) {

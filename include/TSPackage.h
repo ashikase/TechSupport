@@ -22,7 +22,7 @@
 @property(nonatomic, readonly) TSLinkInstruction *storeLink;
 @property(nonatomic, readonly) TSLinkInstruction *supportLink;
 @property(nonatomic, readonly) NSArray *otherLinks;
-@property(nonatomic, readonly) NSArray *supportAttachments;
+@property(nonatomic, readonly) NSArray *otherAttachments;
 + (instancetype)packageForFile:(NSString *)path;
 @end
 
