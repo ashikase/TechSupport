@@ -375,7 +375,13 @@ static const CGFloat kTableRowHeight = 48.0;
         [controller release];
         [content release];
     } else {
-        NSLog(@"ERROR: Content could not be interpreted as a string.");
+        // TODO: Consider adding a link to "View with iFile".
+        NSString *message = NSLocalizedString(@"NOT_TEXT_MESSAGE", nil);
+        NSString *okTitle = NSLocalizedString(@"OK", nil);
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:message delegate:nil
+            cancelButtonTitle:okTitle otherButtonTitles:nil];
+        [alert show];
+        [alert release];
     }
 }
 
