@@ -10,6 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class TSIncludeInstruction;
 @class TSLinkInstruction;
 
 @interface TSPackage : NSObject
@@ -22,6 +23,7 @@
 @property(nonatomic, readonly) TSLinkInstruction *storeLink;
 @property(nonatomic, readonly) TSLinkInstruction *supportLink;
 @property(nonatomic, readonly) NSArray *otherLinks;
+@property(nonatomic, readonly) TSIncludeInstruction *preferencesAttachment;
 @property(nonatomic, readonly) NSArray *otherAttachments;
 + (instancetype)packageForFile:(NSString *)path;
 @end

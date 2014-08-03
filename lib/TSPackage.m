@@ -19,6 +19,7 @@
 
 @implementation TSPackage {
     NSArray *config_;
+    NSString *libraryPath_;
     TSLinkInstruction *supportLinkInstruction_;
 }
 
@@ -30,6 +31,7 @@
 @synthesize isAppStore = isAppStore_;
 @synthesize otherLinks = otherLinks_;
 
+@dynamic preferencesAttachment;
 @dynamic storeLink;
 @dynamic supportLink;
 
@@ -124,17 +126,11 @@
             // Determine store identifier.
             storeIdentifier_ = [identifier_ copy];
 
-            // Add preferences file include command (if file exists).
-            NSMutableArray *config = [NSMutableArray new];
-            NSString *filepath = [[NSString alloc] initWithFormat:@"/var/mobile/Library/Preferences/%@.plist", identifier_];
-            if ([[NSFileManager defaultManager] fileExistsAtPath:filepath]) {
-                NSString *string = [[NSString alloc] initWithFormat:@"include as Preferences plist \"%@\"", filepath];
-                [config addObject:string];
-                [string release];
-            }
-            [filepath release];
+            // Store path to related Library directory.
+            libraryPath_ = @"/var/mobile/Library";
 
             // Load commands from optional config file.
+            NSMutableArray *config = [NSMutableArray new];
             NSString *configFile = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", identifier_];
             NSString *configString = [[NSString alloc] initWithContentsOfFile:configFile usedEncoding:NULL error:NULL];
             if ([configString length] > 0) {
@@ -168,18 +164,11 @@
                 author_ = [[metadata objectForKey:@"artistName"] retain];
                 [metadata release];
 
-                // Add preferences file include command (if file exists).
-                NSMutableArray *config = [NSMutableArray new];
-                NSString *filepath = [[NSString alloc] initWithFormat:@"%@/Library/Preferences/%@.plist",
-                         [appBundlePath stringByDeletingLastPathComponent], identifier_];
-                if ([[NSFileManager defaultManager] fileExistsAtPath:filepath]) {
-                    NSString *string = [[NSString alloc] initWithFormat:@"include as Preferences plist \"%@\"", filepath];
-                    [config addObject:string];
-                    [string release];
-                }
-                [filepath release];
+                // Store path to related Library directory.
+                libraryPath_ = [[[appBundlePath stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Library"] retain];
 
                 // Load commands from optional config file.
+                NSMutableArray *config = [NSMutableArray new];
                 NSString *configPath = [appBundlePath stringByAppendingPathComponent:@"crash_reporter"];
                 NSString *configString = [[NSString alloc] initWithContentsOfFile:configPath usedEncoding:NULL error:NULL];
                 if ([configString length] > 0) {
@@ -222,9 +211,10 @@
     [storeIdentifier_ release];
     [name_ release];
     [author_ release];
-    [config_ release];
-    [supportLinkInstruction_ release];
     [otherLinks_ release];
+    [config_ release];
+    [libraryPath_ release];
+    [supportLinkInstruction_ release];
     [super dealloc];
 }
 
@@ -280,6 +270,21 @@
             }
         }
     }
+
+    return instruction;
+}
+
+- (TSIncludeInstruction *)preferencesAttachment {
+    TSIncludeInstruction *instruction = nil;
+
+    NSString *subpath = [[NSString alloc] initWithFormat:@"Preferences/%@.plist", identifier_];
+    NSString *filepath = [libraryPath_ stringByAppendingPathComponent:subpath];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filepath]) {
+        NSString *line = [[NSString alloc] initWithFormat:@"include as Preferences plist \"%@\"", filepath];
+        instruction = [TSIncludeInstruction instructionWithLine:line];
+        [line release];
+    }
+    [subpath release];
 
     return instruction;
 }
