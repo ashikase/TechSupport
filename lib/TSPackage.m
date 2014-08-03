@@ -231,22 +231,28 @@
 #pragma mark - Properties
 
 - (TSLinkInstruction *)storeLink {
-    NSString *line = nil;
+    TSLinkInstruction *instruction = nil;
 
+    NSString *line = nil;
     if ([self isAppStore]) {
         // Add App Store link.
         // NOTE: Must use long long here as there are over 2 billion apps on the App Store.
         long long item = [[self storeIdentifier] longLongValue];
-        line = [NSString stringWithFormat:
+        line = [[NSString alloc] initWithFormat:
             @"link url \"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=%lld&mt=8\" as \"%@\"",
             item, NSLocalizedString(@"VIEW_IN_APP_STORE", nil)];
     } else {
         // Add Cydia link.
-        line = [NSString stringWithFormat:@"link url \"cydia://package/%@\" as \"%@\"",
+        line = [[NSString alloc] initWithFormat:@"link url \"cydia://package/%@\" as \"%@\"",
             [self storeIdentifier], NSLocalizedString(@"VIEW_IN_CYDIA", nil)];
     }
 
-    return [TSLinkInstruction instructionWithLine:line];
+    if (line != nil) {
+        instruction = [TSLinkInstruction instructionWithLine:line];
+        [line release];
+    }
+
+    return instruction;
 }
 
 - (TSLinkInstruction *)supportLink {
@@ -265,9 +271,10 @@
                     if (leftAngleRange.location < rightAngleRange.location) {
                         NSRange range = NSMakeRange(leftAngleRange.location + 1, rightAngleRange.location - leftAngleRange.location - 1);
                         NSString *emailAddress = [author substringWithRange:range];
-                        NSString *line = [NSString stringWithFormat:@"link email %@ as \"%@\" is_support",
+                        NSString *line = [[NSString alloc] initWithFormat:@"link email %@ as \"%@\" is_support",
                                  emailAddress, NSLocalizedString(@"CONTACT_AUTHOR", nil)];
                         instruction = [TSLinkInstruction instructionWithLine:line];
+                        [line release];
                     }
                 }
             }
