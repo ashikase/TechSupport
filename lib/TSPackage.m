@@ -18,7 +18,6 @@
 #include <stdio.h>
 
 @implementation TSPackage {
-    NSArray *config_;
     NSString *libraryPath_;
     TSLinkInstruction *supportLinkInstruction_;
 }
@@ -30,6 +29,7 @@
 @synthesize version = version_;
 @synthesize isAppStore = isAppStore_;
 @synthesize otherLinks = otherLinks_;
+@synthesize otherAttachments = otherAttachments_;
 
 @dynamic preferencesAttachment;
 @dynamic storeLink;
@@ -72,6 +72,7 @@
         }
 
         // Determine package type, name and author, and load optional config.
+        NSString *configPath = nil;
         if (identifier_ != nil) {
             // Is a dpkg.
             f = popen([[NSString stringWithFormat:@"dpkg-query -p %@ | grep -E \"^(Name|Author|Version):\"", identifier_] UTF8String], "r");
@@ -129,16 +130,8 @@
             // Store path to related Library directory.
             libraryPath_ = @"/var/mobile/Library";
 
-            // Load commands from optional config file.
-            NSMutableArray *config = [NSMutableArray new];
-            NSString *configFile = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", identifier_];
-            NSString *configString = [[NSString alloc] initWithContentsOfFile:configFile usedEncoding:NULL error:NULL];
-            if ([configString length] > 0) {
-                [config addObjectsFromArray:[configString componentsSeparatedByString:@"\n"]];
-            }
-            [configString release];
-
-            config_ = config;
+            // Determine path to related optional config file.
+            configPath = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", identifier_];
         } else {
             // Not a dpkg package. Check if it's an AppStore app.
             if ([path hasPrefix:@"/var/mobile/Applications/"]) {
@@ -167,16 +160,8 @@
                 // Store path to related Library directory.
                 libraryPath_ = [[[appBundlePath stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Library"] retain];
 
-                // Load commands from optional config file.
-                NSMutableArray *config = [NSMutableArray new];
-                NSString *configPath = [appBundlePath stringByAppendingPathComponent:@"crash_reporter"];
-                NSString *configString = [[NSString alloc] initWithContentsOfFile:configPath usedEncoding:NULL error:NULL];
-                if ([configString length] > 0) {
-                    [config addObjectsFromArray:[configString componentsSeparatedByString:@"\n"]];
-                }
-                [configString release];
-
-                config_ = config;
+                // Determine path to related optional config file.
+                configPath = [appBundlePath stringByAppendingPathComponent:@"crash_reporter"];
             } else {
                 // Was not installed via either Cydia (dpkg) or AppStore; unsupported.
                 [self release];
@@ -184,24 +169,35 @@
             }
         }
 
-        // Parse links stored in optional config file.
+        // Parse includes and links stored in optional config file.
         // NOTE: Parse here in order to determine if a support link is provided.
-        NSMutableArray *instructions = [NSMutableArray new];
-        for (NSString *line in config_) {
-            if ([line hasPrefix:@"link"]) {
-                TSLinkInstruction *instruction = [TSLinkInstruction instructionWithLine:line];
-                if (instruction != nil) {
-                    if ([instruction isSupport]) {
-                        if (supportLinkInstruction_ == nil) {
-                            supportLinkInstruction_ = [instruction retain];
+        NSString *configString = [[NSString alloc] initWithContentsOfFile:configPath usedEncoding:NULL error:NULL];
+        if ([configString length] > 0) {
+            NSMutableArray *includeInstructions = [NSMutableArray new];
+            NSMutableArray *linkInstructions = [NSMutableArray new];
+            for (NSString *line in [configString componentsSeparatedByString:@"\n"]) {
+                if ([line hasPrefix:@"include"]) {
+                    TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithLine:line];
+                    if (instruction != nil) {
+                        [includeInstructions addObject:instruction];
+                    }
+                } else if ([line hasPrefix:@"link"]) {
+                    TSLinkInstruction *instruction = [TSLinkInstruction instructionWithLine:line];
+                    if (instruction != nil) {
+                        if ([instruction isSupport]) {
+                            if (supportLinkInstruction_ == nil) {
+                                supportLinkInstruction_ = [instruction retain];
+                            }
+                        } else {
+                            [linkInstructions addObject:instruction];
                         }
-                    } else {
-                        [instructions addObject:instruction];
                     }
                 }
             }
+            otherAttachments_ = includeInstructions;
+            otherLinks_ = linkInstructions;
         }
-        otherLinks_ = instructions;
+        [configString release];
     }
     return self;
 }
@@ -212,7 +208,7 @@
     [name_ release];
     [author_ release];
     [otherLinks_ release];
-    [config_ release];
+    [otherAttachments_ release];
     [libraryPath_ release];
     [supportLinkInstruction_ release];
     [super dealloc];
@@ -287,21 +283,6 @@
     [subpath release];
 
     return instruction;
-}
-
-- (NSArray *)otherAttachments {
-    NSMutableArray *instructions = [NSMutableArray new];
-
-    for (NSString *line in config_) {
-        if ([line hasPrefix:@"include"]) {
-            TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithLine:line];
-            if (instruction != nil) {
-                [instructions addObject:instruction];
-            }
-        }
-    }
-
-    return instructions;
 }
 
 @end
