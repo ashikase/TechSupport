@@ -39,48 +39,77 @@
 
 #pragma mark - Creation and Destruction
 
-static void initDebianPackage(TSPackage *self) {
-    FILE *f = popen([[NSString stringWithFormat:@"dpkg-query -p %@ | grep -E \"^(Name|Author|Version):\"", self->identifier_] UTF8String], "r");
-    if (f != NULL) {
-        // Determine name, author and version.
-        NSMutableData *data = [NSMutableData new];
-        char buf[1025];
-        size_t maxSize = (sizeof(buf) - 1);
-        while (!feof(f)) {
-            if (fgets(buf, maxSize, f)) {
-                buf[maxSize] = '\0';
+static void parseDebianPackageQuery(FILE *f, TSPackage *self) {
+    NSMutableData *data = [NSMutableData new];
+    char buf[1025];
+    size_t maxSize = (sizeof(buf) - 1);
+    while (!feof(f)) {
+        if (fgets(buf, maxSize, f)) {
+            buf[maxSize] = '\0';
 
-                char *newlineLocation = strrchr(buf, '\n');
-                if (newlineLocation != NULL) {
-                    [data appendBytes:buf length:(NSUInteger)(newlineLocation - buf)];
+            char *newlineLocation = strrchr(buf, '\n');
+            if (newlineLocation != NULL) {
+                [data appendBytes:buf length:(NSUInteger)(newlineLocation - buf)];
 
-                    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                    NSUInteger firstColon = [string rangeOfString:@":"].location;
-                    if (firstColon != NSNotFound) {
-                        NSUInteger length = [string length];
-                        if (length > (firstColon + 1)) {
-                            NSCharacterSet *set = [[NSCharacterSet whitespaceCharacterSet] invertedSet];
-                            NSRange range = NSMakeRange((firstColon + 1), (length - firstColon - 1));
-                            NSUInteger firstNonSpace = [string rangeOfCharacterFromSet:set options:0 range:range].location;
-                            NSString *value = [string substringFromIndex:firstNonSpace];
-                            if ([string hasPrefix:@"Name:"]) {
-                                self->name_ = [value retain];
-                            } else if ([string hasPrefix:@"Author:"]) {
-                                self->author_ = [value retain];
-                            } else {
-                                self->version_ = [value retain];
-                            }
+                NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                NSUInteger firstColon = [string rangeOfString:@":"].location;
+                if (firstColon != NSNotFound) {
+                    NSUInteger length = [string length];
+                    if (length > (firstColon + 1)) {
+                        NSCharacterSet *set = [[NSCharacterSet whitespaceCharacterSet] invertedSet];
+                        NSRange range = NSMakeRange((firstColon + 1), (length - firstColon - 1));
+                        NSUInteger firstNonSpace = [string rangeOfCharacterFromSet:set options:0 range:range].location;
+                        NSString *value = [string substringFromIndex:firstNonSpace];
+                        if ([string hasPrefix:@"Name:"]) {
+                            self->name_ = [value retain];
+                        } else if ([string hasPrefix:@"Author:"]) {
+                            self->author_ = [value retain];
+                        } else {
+                            self->version_ = [value retain];
                         }
                     }
-                    [string release];
-                    [data setLength:0];
-                } else {
-                    [data appendBytes:buf length:maxSize];
                 }
+                [string release];
+                [data setLength:0];
+            } else {
+                [data appendBytes:buf length:maxSize];
             }
         }
-        [data release];
-        pclose(f);
+    }
+    [data release];
+}
+
+static void initDebianPackage(TSPackage *self) {
+    // NOTE: Query using -p switch (/var/lib/dpkg/available) first, as package
+    //       might have been installed recently due to some issue.
+    //       (Uninstalled packages will appear in 'status', but without any
+    //       name/author information).
+    FILE *f;
+    f = popen([[NSString stringWithFormat:@"dpkg-query -p %@ | grep -E \"^(Name|Author|Version):\"", self->identifier_] UTF8String], "r");
+    int stat_loc = 0;
+    if (f != NULL) {
+        // Determine name, author and version.
+        parseDebianPackageQuery(f, self);
+        stat_loc = pclose(f);
+    }
+
+    // Check the exit status to determine if the operation was successful.
+    BOOL succeeded = NO;
+    if (WIFEXITED(stat_loc)) {
+        if (WEXITSTATUS(stat_loc) == 0) {
+            succeeded = YES;
+        }
+    }
+
+    // If command failed, try again using "-s" (/var/lib/dpkg/status) switch.
+    if (!succeeded) {
+        f = popen([[NSString stringWithFormat:@"dpkg-query -s %@ | grep -E \"^(Name|Author|Version):\"", self->identifier_] UTF8String], "r");
+        int stat_loc = 0;
+        if (f != NULL) {
+            // Determine name, author and version.
+            parseDebianPackageQuery(f, self);
+            stat_loc = pclose(f);
+        }
     }
 }
 
