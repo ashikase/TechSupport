@@ -1,6 +1,6 @@
 Package: jp.ashikase.techsupport
 Name: TechSupport Framework
-Version: 1.1.1
+Version: 1.1.2
 Description: Framework to assist in providing feedback to developers.
 Architecture: iphoneos-arm
 Pre-Depends: firmware (>=3.0)
