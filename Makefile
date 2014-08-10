@@ -2,6 +2,7 @@ FRAMEWORK_NAME = TechSupport
 FRAMEWORK_ID = jp.ashikase.TechSupport
 
 TechSupport_OBJC_FILES = \
+    Common/dpkg_util.m \
     lib/TSContactViewController.m \
     lib/TSHTMLViewController.m \
     lib/TSIncludeInstruction.m \
