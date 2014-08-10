@@ -29,6 +29,7 @@
 @synthesize name = name_;
 @synthesize author = author_;
 @synthesize version = version_;
+@synthesize installDate = installDate_;
 @synthesize isAppStore = isAppStore_;
 @synthesize otherLinks = otherLinks_;
 @synthesize otherAttachments = otherAttachments_;
@@ -49,6 +50,8 @@ static void initDebianPackage(TSPackage *self) {
     // Determine store identifier.
     self->storeIdentifier_ = [self->identifier_ copy];
 
+    // Determine date installed.
+    self->installDate_ = [installDateForDebianPackageWithIdentifier(self->identifier_) retain];
 }
 
 static void initCommon(TSPackage *self) {
@@ -244,6 +247,7 @@ static void initCommon(TSPackage *self) {
     [storeIdentifier_ release];
     [name_ release];
     [author_ release];
+    [installDate_ release];
     [otherLinks_ release];
     [otherAttachments_ release];
     [bundlePath_ release];
