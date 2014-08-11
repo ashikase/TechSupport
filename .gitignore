@@ -1,6 +1,6 @@
-theos
-theos/*
-.theos/*
+**/theos
+**/theos/*
+**/.theos/*
 *.o
 */obj/*
 **/obj/*
