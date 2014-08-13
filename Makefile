@@ -2,7 +2,6 @@ FRAMEWORK_NAME = TechSupport
 FRAMEWORK_ID = jp.ashikase.TechSupport
 
 TechSupport_OBJC_FILES = \
-    Common/dpkg_util.m \
     lib/TSContactViewController.m \
     lib/TSHTMLViewController.m \
     lib/TSIncludeInstruction.m \
@@ -10,7 +9,8 @@ TechSupport_OBJC_FILES = \
     lib/TSLinkInstruction.m \
     lib/TSPackage.m
 TechSupport_FRAMEWORKS = MessageUI UIKit
-TechSupport_LIBRARIES = lockdown
+TechSupport_LIBRARIES = packageinfo
+ADDITIONAL_LDFLAGS = -Llib
 ADDITIONAL_CFLAGS = -DFRAMEWORK_ID=\"$(FRAMEWORK_ID)\" -ICommon -Iinclude -include firmware.h -include include.pch
 
 export ARCHS = armv6 armv7 armv7s arm64
