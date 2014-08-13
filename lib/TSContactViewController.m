@@ -11,7 +11,6 @@
 #import "TSContactViewController.h"
 
 #import <MessageUI/MessageUI.h>
-#import <libpackageinfo/libpackageinfo.h>
 #import "TSHTMLViewController.h"
 //#import "ModalActionSheet.h"
 //#import "pastie.h"
@@ -239,13 +238,12 @@ static const CGFloat kTableRowHeight = 48.0;
     if ([linkInstruction_ isEmail]) {
         if ([MFMailComposeViewController canSendMail]) {
             // Setup mail controller.
-            PIPackage *package = package_.package;
             MFMailComposeViewController *controller = [MFMailComposeViewController new];
             [controller setMailComposeDelegate:self];
             [controller setMessageBody:[self messageBodyWithDetails] isHTML:NO];
             [controller setSubject:[NSString stringWithFormat:@"Crash Report: %@ (%@)",
-                ([package name] ?: @"(unknown product)"),
-                ([package version] ?: @"unknown version")
+                ([package_ name] ?: @"(unknown product)"),
+                ([package_ version] ?: @"unknown version")
                 ]];
             [controller setToRecipients:[linkInstruction_ recipients]];
 

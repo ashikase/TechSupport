@@ -19,10 +19,10 @@
 #include <sys/stat.h>
 
 @implementation TSPackage {
+    PIPackage *package_;
     TSLinkInstruction *supportLinkInstruction_;
 }
 
-@synthesize package = package_;
 @synthesize otherLinks = otherLinks_;
 @synthesize otherAttachments = otherAttachments_;
 
@@ -110,8 +110,32 @@ static void loadConfiguration(TSPackage *self) {
 
 #pragma mark - Properties
 
+- (NSString *)identifier {
+    return [package_ identifier];
+}
+
+- (NSString *)storeIdentifier {
+    return [package_ storeIdentifier];
+}
+
+- (NSString *)name {
+    return [package_ name];
+}
+
+- (NSString *)author {
+    return [package_ author];
+}
+
+- (NSString *)version {
+    return [package_ version];
+}
+
+- (NSDate *)installDate {
+    return [package_ installDate];
+}
+
 - (BOOL)isAppStore {
-    return [[self package] isKindOfClass:[PIAppleStorePackage class]];
+    return [package_ isKindOfClass:[PIAppleStorePackage class]];
 }
 
 - (TSLinkInstruction *)storeLink {
@@ -121,14 +145,14 @@ static void loadConfiguration(TSPackage *self) {
     if ([self isAppStore]) {
         // Add App Store link.
         // NOTE: Must use long long here as there are over 2 billion apps on the App Store.
-        long long item = [[[self package] storeIdentifier] longLongValue];
+        long long item = [[package_ storeIdentifier] longLongValue];
         string = [[NSString alloc] initWithFormat:
             @"link url \"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=%lld&mt=8\" as \"%@\"",
             item, NSLocalizedString(@"VIEW_IN_APP_STORE", nil)];
     } else {
         // Add Cydia link.
         string = [[NSString alloc] initWithFormat:@"link url \"cydia://package/%@\" as \"%@\"",
-            [[self package] storeIdentifier], NSLocalizedString(@"VIEW_IN_CYDIA", nil)];
+            [package_ storeIdentifier], NSLocalizedString(@"VIEW_IN_CYDIA", nil)];
     }
 
     if (string != nil) {
@@ -146,7 +170,7 @@ static void loadConfiguration(TSPackage *self) {
         return supportLinkInstruction_;
     } else {
         // Return email link to contact author.
-        NSString *author = [[self package] author];
+        NSString *author = [package_ author];
         if (author != nil) {
             NSRange leftAngleRange = [author rangeOfString:@"<" options:NSBackwardsSearch];
             if (leftAngleRange.location != NSNotFound) {
@@ -171,9 +195,8 @@ static void loadConfiguration(TSPackage *self) {
 - (TSIncludeInstruction *)preferencesAttachment {
     TSIncludeInstruction *instruction = nil;
 
-    PIPackage *package = [self package];
-    NSString *subpath = [[NSString alloc] initWithFormat:@"Preferences/%@.plist", [package identifier]];
-    NSString *filepath = [[package libraryPath] stringByAppendingPathComponent:subpath];
+    NSString *subpath = [[NSString alloc] initWithFormat:@"Preferences/%@.plist", [package_ identifier]];
+    NSString *filepath = [[package_ libraryPath] stringByAppendingPathComponent:subpath];
     if ([[NSFileManager defaultManager] fileExistsAtPath:filepath]) {
         NSString *string = [[NSString alloc] initWithFormat:@"include as Preferences plist \"%@\"", filepath];
         instruction = [TSIncludeInstruction instructionWithString:string];

@@ -10,12 +10,16 @@
 
 #import <Foundation/Foundation.h>
 
-@class PIPackage;
 @class TSIncludeInstruction;
 @class TSLinkInstruction;
 
 @interface TSPackage : NSObject
-@property(nonatomic, readonly) PIPackage *package;
+@property(nonatomic, readonly) NSString *identifier;
+@property(nonatomic, readonly) NSString *storeIdentifier;
+@property(nonatomic, readonly) NSString *name;
+@property(nonatomic, readonly) NSString *author;
+@property(nonatomic, readonly) NSString *version;
+@property(nonatomic, readonly) NSDate *installDate;
 @property(nonatomic, readonly) BOOL isAppStore;
 @property(nonatomic, readonly) TSLinkInstruction *storeLink;
 @property(nonatomic, readonly) TSLinkInstruction *supportLink;
