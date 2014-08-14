@@ -7,7 +7,8 @@ TechSupport_OBJC_FILES = \
     lib/TSIncludeInstruction.m \
     lib/TSInstruction.m \
     lib/TSLinkInstruction.m \
-    lib/TSPackage.m
+    lib/TSPackage.m \
+    lib/TSPackageCache.m
 TechSupport_FRAMEWORKS = MessageUI UIKit
 TechSupport_LIBRARIES = packageinfo
 ADDITIONAL_LDFLAGS = -Llib
