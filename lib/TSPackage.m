@@ -8,8 +8,6 @@
  * License: LGPL v3 (See LICENSE file for details)
  */
 
-// Referenced from searchfiles() of query.c of the dpkg source package.
-
 #import "TSPackage.h"
 
 #import <libpackageinfo/libpackageinfo.h>
