@@ -42,7 +42,7 @@
 - (instancetype)initForFile:(NSString *)path {
     self = [super init];
     if (self != nil) {
-        package_ = [[PIPackageCache sharedCache] packageForFile:path];
+        package_ = [[[PIPackageCache sharedCache] packageForFile:path] retain];
         loadConfiguration(self);
     }
     return self;
@@ -51,7 +51,7 @@
 - (instancetype)initWithIdentifier:(NSString *)identifier {
     self = [super init];
     if (self != nil) {
-        package_ = [[PIPackageCache sharedCache] packageWithIdentifier:identifier];
+        package_ = [[[PIPackageCache sharedCache] packageWithIdentifier:identifier] retain];
         loadConfiguration(self);
     }
     return self;
