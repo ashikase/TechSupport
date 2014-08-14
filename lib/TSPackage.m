@@ -56,11 +56,21 @@
             package_ = [package retain];
 
             // Determine path to related optional config file.
+            // NOTE: The correct name of the config file is "(*.)techsupport".
+            //       For historical reasons, we also support "(*.)crash_reporter".
             NSString *configPath = nil;
             if ([package_ isKindOfClass:[PIApplePackage class]]) {
-                configPath = [[package_ bundlePath] stringByAppendingPathComponent:@"crash_reporter"];
+                NSString *bundlePath = [package_ bundlePath];
+                configPath = [bundlePath stringByAppendingPathComponent:@"techsupport"];
+                if (![[NSFileManager defaultManager] fileExistsAtPath:configPath]) {
+                    configPath = [bundlePath stringByAppendingPathComponent:@"crash_reporter"];
+                }
             } else {
-                configPath = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", [package_ identifier]];
+                NSString *identifier = [package_ identifier];
+                configPath = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.techsupport", identifier];
+                if (![[NSFileManager defaultManager] fileExistsAtPath:configPath]) {
+                    configPath = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", identifier];
+                }
             }
 
             // Parse includes and links stored in optional config file.
