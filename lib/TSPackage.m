@@ -40,62 +40,64 @@
 }
 
 - (instancetype)initForFile:(NSString *)path {
-    self = [super init];
-    if (self != nil) {
-        package_ = [[[PIPackageCache sharedCache] packageForFile:path] retain];
-        loadConfiguration(self);
-    }
-    return self;
+    PIPackage *package = [[PIPackageCache sharedCache] packageForFile:path];
+    return [self initWithPackage:package];
 }
 
 - (instancetype)initWithIdentifier:(NSString *)identifier {
-    self = [super init];
-    if (self != nil) {
-        package_ = [[[PIPackageCache sharedCache] packageWithIdentifier:identifier] retain];
-        loadConfiguration(self);
-    }
-    return self;
+    PIPackage *package = [[PIPackageCache sharedCache] packageWithIdentifier:identifier];
+    return [self initWithPackage:package];
 }
 
-static void loadConfiguration(TSPackage *self) {
-    NSString *configPath = nil;
-    if ([self->package_ isKindOfClass:[PIApplePackage class]]) {
-        // Determine path to related optional config file.
-        configPath = [[self->package_ bundlePath] stringByAppendingPathComponent:@"crash_reporter"];
-    } else {
-        // Determine path to related optional config file.
-        configPath = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", [self->package_ identifier]];
-    }
+- (instancetype)initWithPackage:(PIPackage *)package {
+    if (package != nil) {
+        self = [super init];
+        if (self != nil) {
+            package_ = [package retain];
 
-    // Parse includes and links stored in optional config file.
-    // NOTE: Parse here in order to determine if a support link is provided.
-    NSString *configString = [[NSString alloc] initWithContentsOfFile:configPath usedEncoding:NULL error:NULL];
-    if ([configString length] > 0) {
-        NSMutableArray *includeInstructions = [NSMutableArray new];
-        NSMutableArray *linkInstructions = [NSMutableArray new];
-        for (NSString *string in [configString componentsSeparatedByString:@"\n"]) {
-            if ([string hasPrefix:@"include"]) {
-                TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithString:string];
-                if (instruction != nil) {
-                    [includeInstructions addObject:instruction];
-                }
-            } else if ([string hasPrefix:@"link"]) {
-                TSLinkInstruction *instruction = [TSLinkInstruction instructionWithString:string];
-                if (instruction != nil) {
-                    if ([instruction isSupport]) {
-                        if (self->supportLinkInstruction_ == nil) {
-                            self->supportLinkInstruction_ = [instruction retain];
+            // Determine path to related optional config file.
+            NSString *configPath = nil;
+            if ([package_ isKindOfClass:[PIApplePackage class]]) {
+                configPath = [[package_ bundlePath] stringByAppendingPathComponent:@"crash_reporter"];
+            } else {
+                configPath = [NSString stringWithFormat:@"/var/lib/dpkg/info/%@.crash_reporter", [package_ identifier]];
+            }
+
+            // Parse includes and links stored in optional config file.
+            // NOTE: Parse here in order to determine if a support link is provided.
+            NSString *configString = [[NSString alloc] initWithContentsOfFile:configPath usedEncoding:NULL error:NULL];
+            if ([configString length] > 0) {
+                NSMutableArray *includeInstructions = [NSMutableArray new];
+                NSMutableArray *linkInstructions = [NSMutableArray new];
+                for (NSString *string in [configString componentsSeparatedByString:@"\n"]) {
+                    if ([string hasPrefix:@"include"]) {
+                        TSIncludeInstruction *instruction = [TSIncludeInstruction instructionWithString:string];
+                        if (instruction != nil) {
+                            [includeInstructions addObject:instruction];
                         }
-                    } else {
-                        [linkInstructions addObject:instruction];
+                    } else if ([string hasPrefix:@"link"]) {
+                        TSLinkInstruction *instruction = [TSLinkInstruction instructionWithString:string];
+                        if (instruction != nil) {
+                            if ([instruction isSupport]) {
+                                if (supportLinkInstruction_ == nil) {
+                                    supportLinkInstruction_ = [instruction retain];
+                                }
+                            } else {
+                                [linkInstructions addObject:instruction];
+                            }
+                        }
                     }
                 }
+                otherAttachments_ = includeInstructions;
+                otherLinks_ = linkInstructions;
             }
+            [configString release];
         }
-        self->otherAttachments_ = includeInstructions;
-        self->otherLinks_ = linkInstructions;
+        return self;
+    } else {
+        [self release];
+        return nil;
     }
-    [configString release];
 }
 
 - (void)dealloc {
