@@ -80,12 +80,6 @@ loop_exit:
     [super dealloc];
 }
 
-- (UITableViewCell *)format:(UITableViewCell *)cell {
-    cell = [super format:cell];
-    cell.detailTextLabel.text = filepath_;
-    return cell;
-}
-
 - (NSData *)content {
     if (content_ == nil) {
         NSString *filepath = [self filepath];

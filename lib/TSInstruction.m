@@ -130,23 +130,6 @@ static NSMutableDictionary *instructions$ = nil;
     }
 }
 
-- (UITableViewCell *)format:(UITableViewCell *)cell {
-    if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"."] autorelease];
-    }
-
-    UILabel *textLabel = cell.textLabel;
-    textLabel.text = [self title];
-    textLabel.textColor = [UIColor blackColor];
-
-    UILabel *detailTextLabel = cell.detailTextLabel;
-    detailTextLabel.font = [UIFont systemFontOfSize:9.0];
-    detailTextLabel.lineBreakMode = UILineBreakModeMiddleTruncation;
-    detailTextLabel.numberOfLines = 2;
-
-    return cell;
-}
-
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

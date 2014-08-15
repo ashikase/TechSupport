@@ -19,7 +19,6 @@
 + (void)flushInstructions;
 - (instancetype)initWithTokens:(NSArray *)tokens;
 - (NSComparisonResult)compare:(TSInstruction *)other;
-- (UITableViewCell *)format:(UITableViewCell *)cell;
 @end
 
 NSString *stripQuotes(NSString *string);
