@@ -4,6 +4,3 @@
 [submodule "Common"]
 	path = Common
 	url = http://github.com/ashikase/Common
-[submodule "Libraries/libpackageinfo"]
-	path = Libraries/libpackageinfo
-	url = http://github.com/ashikase/libpackageinfo

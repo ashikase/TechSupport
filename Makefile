@@ -11,7 +11,6 @@ TechSupport_OBJC_FILES = \
     lib/TSPackageCache.m
 TechSupport_FRAMEWORKS = MessageUI UIKit
 TechSupport_LIBRARIES = packageinfo
-ADDITIONAL_LDFLAGS = -Llib
 ADDITIONAL_CFLAGS = -DFRAMEWORK_ID=\"$(FRAMEWORK_ID)\" -ICommon -Iinclude -include firmware.h -include include.pch
 
 export ARCHS = armv6 armv7 armv7s arm64
@@ -23,12 +22,12 @@ include $(THEOS)/makefiles/framework.mk
 
 after-stage::
 	# Copy localization files.
-	- cp -a $(THEOS_PROJECT_DIR)/Localization/TechSupport/*.lproj $(THEOS_STAGING_DIR)/Library/Frameworks/TechSupport.framework/Resources/
+	- cp -a $(THEOS_PROJECT_DIR)/Localization/$(FRAMEWORK_NAME)/*.lproj $(THEOS_STAGING_DIR)/Library/Frameworks/$(FRAMEWORK_NAME).framework/Resources/
 	# Remove repository-related files.
 	- find $(THEOS_STAGING_DIR) -name '.gitkeep' -delete
 	# Copy header files to include directory.
-	- mkdir -p $(THEOS_STAGING_DIR)/Library/Frameworks/TechSupport.framework/Headers
-	- cp $(THEOS_PROJECT_DIR)/include/*.h $(THEOS_STAGING_DIR)/Library/Frameworks/TechSupport.framework/Headers/
+	- mkdir -p $(THEOS_STAGING_DIR)/Library/Frameworks/$(FRAMEWORK_NAME).framework/Headers
+	- cp $(THEOS_PROJECT_DIR)/include/*.h $(THEOS_STAGING_DIR)/Library/Frameworks/$(FRAMEWORK_NAME).framework/Headers/
 
 distclean: clean
 	- rm -f $(THEOS_PROJECT_DIR)/$(call lc,$(FRAMEWORK_ID))*.deb
