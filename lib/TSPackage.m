@@ -40,12 +40,12 @@
 }
 
 - (instancetype)initForFile:(NSString *)path {
-    PIPackage *package = [[PIPackageCache sharedCache] packageForFile:path];
+    PIPackage *package = [PIPackage packageForFile:path];
     return [self initWithPackage:package];
 }
 
 - (instancetype)initWithIdentifier:(NSString *)identifier {
-    PIPackage *package = [[PIPackageCache sharedCache] packageWithIdentifier:identifier];
+    PIPackage *package = [PIPackage packageWithIdentifier:identifier];
     return [self initWithPackage:package];
 }
 
