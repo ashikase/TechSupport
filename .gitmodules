@@ -2,5 +2,5 @@
 	path = Localization
 	url = http://github.com/ashikase/Localization
 [submodule "Common"]
-	path = Common
+	path = Libraries/Common
 	url = http://github.com/ashikase/Common
