@@ -49,3 +49,8 @@ doc:
 		--no-warn-invalid-crossref \
 		--output Documentation \
 		$(THEOS_PROJECT_DIR)/include
+
+sdk: stage
+	- rm -rf $(THEOS)/Frameworks/$(FRAMEWORK_NAME).framework
+	- mkdir -p $(THEOS)/Frameworks/
+	- cp -a $(THEOS_STAGING_DIR)/Library/Frameworks/$(FRAMEWORK_NAME).framework $(THEOS)/Frameworks/
