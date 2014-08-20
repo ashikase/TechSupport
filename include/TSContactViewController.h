@@ -24,12 +24,34 @@
 @property(nonatomic, copy) NSString *detailEntryPlaceholderText;
 
 /**
+ * The string used for the subject of the generated email.
+ *
+ * This value is _nil_ by default.
+ */
+@property(nonatomic, copy) NSString *subject;
+
+/**
  * The string displayed in the generated email, below the device details and
  * above the user-entered details.
  *
  * This value is _nil_ by default.
  */
 @property(nonatomic, copy) NSString *messageBody;
+
+/**
+ * A string used for formatting the details input by the user.
+ *
+ * This value is _nil_ by default. Any set value *must* include a "%@" to
+ * represent where the user input will be inserted.
+ */
+@property(nonatomic, copy) NSString *detailFormat;
+
+/**
+ * A string representing the generator of this email.
+ *
+ * This value is _nil_ by default.
+ */
+@property(nonatomic, copy) NSString *byline;
 
 /**
  * A Boolean value that determines whether a user must enter details.
