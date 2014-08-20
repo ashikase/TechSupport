@@ -1,3 +1,19 @@
+> # Version 1.2.0
+> - - -
+> * NEW: Can now set subject and byline of generated message, as well as the format used for user input.
+
+- - -
+
+> # Version 1.1.3
+> - - -
+> * MOD: Package information is now obtained via libpackageinfo.
+> * LOC: Added Russian localization.
+>     * Credit for this goes to SparTV (@TweetSparTV on Twitter).
+> * LOC: Updated Turkish localization.
+>     * Credit for this goes to @keremyilmaazz (Twitter) (/u/keremy on reddit).
+
+- - -
+
 > # Version 1.1.2
 > - - -
 > * LOC: Updated Arabic localization.
