@@ -16,6 +16,7 @@
 
 @interface UIWebView ()
 - (UIWebDocumentView *)_documentView;
+- (UIScrollView *)_scrollView;
 @end
 
 static NSString *escapedHTMLString(NSString *string) {
@@ -76,7 +77,11 @@ static NSString *escapedHTMLString(NSString *string) {
             escapedHTMLString(content)];
 
         UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0.0, 0.0, 0.0, 0.0)];
-        webView.scrollView.bounces = NO;
+        if (IOS_LT(5_0)) {
+            [[webView _scrollView] setBounces:NO];
+        } else {
+            [[webView scrollView] setBounces:NO];
+        }
         webView.dataDetectorTypes = dataDetectors;
         webView_ = webView;
     }
