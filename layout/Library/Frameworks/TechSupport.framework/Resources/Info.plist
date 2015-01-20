@@ -1,9 +1,9 @@
 CFBundleDevelopmentRegion = "English";
 CFBundleExecutable = "TechSupport";
-CFBundleGetInfoString = "1.2.0, Copyright 2014 Lance Fetters (a.k.a. ashikase)";
+CFBundleGetInfoString = "1.2.1, Copyright 2014-2015 Lance Fetters (a.k.a. ashikase)";
 CFBundleIdentifier = "jp.ashikase.TechSupport";
 CFBundleInfoDictionaryVersion = "6.0";
 CFBundleName = "TechSupport";
 CFBundlePackageType = "FMWK";
-CFBundleVersion = "1.2.0";
+CFBundleVersion = "1.2.1";
 CFBundleSignature = "????";

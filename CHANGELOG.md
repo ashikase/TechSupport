@@ -1,3 +1,16 @@
+> # Version 1.2.1
+> - - -
+> * LOC: Added Czech localization.
+>     * NOTE: Credit for this goes to david19au (github).
+> * LOC: Added German localization.
+>     * Credit for this goes to J41LBR34KXP (github).
+> * LOC: Updated French localization.
+>     * Credit for this goes to j0k3r (github).
+> * LOC: Updated Russian localization.
+>     * Credit for this goes to bill876 (github).
+
+- - -
+
 > # Version 1.2.0
 > - - -
 > * NEW: Can now set subject and byline of generated message, as well as the format used for user input.
