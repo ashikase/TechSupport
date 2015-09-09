@@ -14,6 +14,11 @@
 
 #include "system_info.h"
 
+//#define BASE_URL_STRING @"http://myserver.com"
+#ifndef BASE_URL_STRING
+#error "Must define BASE_URL_STRING using your own server in order to use this demo."
+#endif
+
 @interface RootViewController () <NSURLConnectionDelegate>
 @end
 
@@ -64,7 +69,8 @@
         //           include as \"IconState\" plist /var/mobile/Library/SpringBoard/IconState.plist
         //           include as \"Package List\" command /usr/bin/dpkg -l
         //
-        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://myserver.com/%@.txt", udid]];
+        NSString *urlString = [BASE_URL_STRING stringByAppendingPathComponent:[NSString stringWithFormat:@"/%@.txt", udid]];
+        NSURL *url = [NSURL URLWithString:urlString];
         if (url != nil) {
             // NOTE: Performing synchronously for simplicity; should perform async in
             //       real application.
