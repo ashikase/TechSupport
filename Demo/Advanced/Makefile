@@ -4,7 +4,7 @@ APPLICATION_NAME = TechSupport_Advanced
 PKG_ID = jp.ashikase.techsupport.demo.advanced
 
 TechSupport_Advanced_FILES = main.m ApplicationDelegate.m RootViewController.m
-TechSupport_Advanced_CFLAGS = -F$(TECHSUPPORT_FRAMEWORK) -I../../Common
+TechSupport_Advanced_CFLAGS = -F$(TECHSUPPORT_FRAMEWORK) -I../../Libraries/Common
 TechSupport_Advanced_LDFLAGS = -F$(TECHSUPPORT_FRAMEWORK) -framework TechSupport -llockdown
 TechSupport_Advanced_FRAMEWORKS = UIKit CoreGraphics
 
