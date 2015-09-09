@@ -14,7 +14,19 @@
 
 #include "system_info.h"
 
-@implementation RootViewController
+@interface RootViewController () <NSURLConnectionDelegate>
+@end
+
+@implementation RootViewController {
+    NSURLConnection *connection_;
+    NSMutableData *data_;
+}
+
+- (void)dealloc {
+    [connection_ release];
+    [data_ release];
+    [super dealloc];
+}
 
 - (void)loadView {
     // Create a simple screen with a button for calling the TechSupport code.
@@ -41,31 +53,24 @@
 }
 
 - (void)buttonTapped {
-    // Determine UDID of device.
-    NSString *udid = uniqueDeviceIdentifier();
+    if (connection_ == nil) {
+        // Determine UDID of device.
+        NSString *udid = uniqueDeviceIdentifier();
 
-    // Request UDID-targetted instructions file from remote server.
-    // TODO: Replace "myserver.com/" with your own server and path structure.
-    // NOTE: Sample file contents:
-    //
-    //           include as \"IconState\" plist /var/mobile/Library/SpringBoard/IconState.plist
-    //           include as \"Package List\" command /usr/bin/dpkg -l
-    //
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://myserver.com/%@.txt", udid]];
-    if (url != nil) {
-        // NOTE: Performing synchronously for simplicity; should perform async in
-        //       real application.
-        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
-        NSHTTPURLResponse *response = nil;
-        NSError *error = nil;
-        NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-        if ((data != nil) && ([response statusCode] == 200)) {
-            NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            NSArray *lines = [content componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-            [self generateWithInstructionLines:lines];
-            [content release];
-        } else {
-            NSLog(@"ERROR: Failed to retrieve file: %@", [error localizedDescription]);
+        // Request UDID-targetted instructions file from remote server.
+        // TODO: Replace "myserver.com/" with your own server and path structure.
+        // NOTE: Sample file contents:
+        //
+        //           include as \"IconState\" plist /var/mobile/Library/SpringBoard/IconState.plist
+        //           include as \"Package List\" command /usr/bin/dpkg -l
+        //
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://myserver.com/%@.txt", udid]];
+        if (url != nil) {
+            // NOTE: Performing synchronously for simplicity; should perform async in
+            //       real application.
+            NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
+            connection_ = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:YES];
+            [request release];
         }
     }
 }
@@ -92,6 +97,53 @@
     [controller setRequiresDetailsFromUser:YES];
     [controller release];
     [includeInstructions release];
+}
+
+#pragma mark - NSURLConnectionDelegate
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+    NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+    if (statusCode == 200) {
+        data_ = [[NSMutableData alloc] init];
+    } else {
+        // NOTE: Only a warning as the response may be a redirect (which
+        //       would lead to this delegate method getting called again).
+        NSLog(@"WARNING: Received response: %@", response);
+    }
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+    if (data_ != nil) {
+        [data_ appendData:data];
+    }
+}
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+    if (data_ != nil) {
+        NSString *content = [[NSString alloc] initWithData:data_ encoding:NSUTF8StringEncoding];
+        if (content != nil) {
+            NSArray *lines = [content componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+            [self generateWithInstructionLines:lines];
+            [content release];
+        } else {
+            NSLog(@"ERROR: Unable to interpret downloaded content as a UTF8 string.");
+        }
+
+        [data_ release];
+        data_ = nil;
+        [connection_ release];
+        connection_ = nil;
+    }
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+     NSLog(@"ERROR: Connection failed: %@ %@",
+        [error localizedDescription],
+        [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]);
+    [data_ release];
+    data_ = nil;
+    [connection_ release];
+    connection_ = nil;
 }
 
 @end
