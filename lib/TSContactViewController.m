@@ -236,7 +236,8 @@ static const CGFloat kTableRowHeight = 48.0;
 - (void)generateButtonTapped {
     NSString *okMessage = NSLocalizedString(@"OK", nil);
 
-    if ([self requiresDetailsFromUser] && [textView_.text isEqualToString:[self detailEntryPlaceholderText]]) {
+    NSString *detailText = textView_.text;
+    if ([self requiresDetailsFromUser] && ([detailText isEqualToString:@""] || [detailText isEqualToString:[self detailEntryPlaceholderText]])) {
         NSString *detailRequiredTitle = NSLocalizedString(@"DETAIL_REQUIRED_TITLE", nil);
         NSString *detailRequiredMessage = NSLocalizedString(@"DETAIL_REQUIRED_MESSAGE", nil);
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:detailRequiredTitle message:detailRequiredMessage
@@ -286,7 +287,7 @@ static const CGFloat kTableRowHeight = 48.0;
         // Upload attachments to paste site and open support link.
         NSString *urlsString = [self uploadAttachments];
         if (urlsString != nil) {
-            NSMutableString *string = [textView_.text mutableCopy];
+            NSMutableString *string = [detailText mutableCopy];
             [string appendString:@"\n"];
             [string appendString:urlsString];
             [UIPasteboard generalPasteboard].string = string;
