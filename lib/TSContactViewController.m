@@ -346,28 +346,24 @@ static const CGFloat kTableRowHeight = 48.0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UILabel *textLabel = nil;
-    UILabel *detailTextLabel = nil;
 
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"."];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"."] autorelease];
+        cell.editingAccessoryType = UITableViewCellAccessoryDetailDisclosureButton;
         cell.indentationWidth = 0.0;
 
-        textLabel = cell.textLabel;
+        cell.textLabel.textColor = [UIColor blackColor];
 
-        detailTextLabel = cell.detailTextLabel;
+        UILabel *detailTextLabel = cell.detailTextLabel;
         detailTextLabel.font = [UIFont systemFontOfSize:9.0];
         detailTextLabel.lineBreakMode = UILineBreakModeMiddleTruncation;
         detailTextLabel.numberOfLines = 2;
     }
 
-    cell.editingAccessoryType = UITableViewCellAccessoryDetailDisclosureButton;
-    textLabel.textColor = [UIColor blackColor];
-
     TSIncludeInstruction *instruction = [includeInstructions_ objectAtIndex:indexPath.row];
-    textLabel.text = [instruction title];
-    detailTextLabel.text = [instruction filepath];
+    cell.textLabel.text = [instruction title];
+    cell.detailTextLabel.text = [instruction filepath];
     [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
     return cell;
 }
