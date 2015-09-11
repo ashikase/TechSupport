@@ -23,7 +23,7 @@ typedef enum {
 @property(nonatomic, readonly) NSData *content;
 @property(nonatomic, copy) NSString *commandScript;
 @property(nonatomic, readonly) NSString *filepath;
-@property(nonatomic, readonly) TSIncludeInstructionType type;
+@property(nonatomic, readonly) TSIncludeInstructionType includeType;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

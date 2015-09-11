@@ -261,10 +261,11 @@ static const CGFloat kTableRowHeight = 48.0;
                 // Attach to the email.
                 NSData *data = [instruction content];
                 if (data != nil) {
+                    TSIncludeInstructionType includeType = [instruction includeType];
                     NSString *filepath = [instruction filepath];
-                    NSString *filename = ([instruction type] == TSIncludeInstructionTypeCommand) ?
+                    NSString *filename = (includeType == TSIncludeInstructionTypeCommand) ?
                         [[instruction title] stringByAppendingPathExtension:@"txt"] : [filepath lastPathComponent];
-                    NSString *mimeType = ([instruction type] == TSIncludeInstructionTypePlist) ?
+                    NSString *mimeType = (includeType == TSIncludeInstructionTypePlist) ?
                         @"application/x-plist" : @"text/plain";
                     [controller addAttachmentData:data mimeType:mimeType fileName:filename];
                 }

@@ -24,7 +24,7 @@ NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
 
 @synthesize content = content_;
 @synthesize filepath = filepath_;
-@synthesize type = type_;
+@synthesize includeType = includeType_;
 
 // NOTE: Format is:
 //
@@ -52,13 +52,13 @@ NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
                     if ([token isEqualToString:@"as"]) {
                         mode = ModeTitle;
                     } else if ([token isEqualToString:@"file"]) {
-                        type_ = TSIncludeInstructionTypeFile;
+                        includeType_ = TSIncludeInstructionTypeFile;
                         mode = ModeFilepath;
                     } else if ([token isEqualToString:@"command"]) {
-                        type_ = TSIncludeInstructionTypeCommand;
+                        includeType_ = TSIncludeInstructionTypeCommand;
                         mode = ModeFilepath;
                     } else if ([token isEqualToString:@"plist"]) {
-                        type_ = TSIncludeInstructionTypePlist;
+                        includeType_ = TSIncludeInstructionTypePlist;
                         mode = ModeFilepath;
                     }
                     break;
@@ -89,7 +89,7 @@ loop_exit:
 - (NSData *)content {
     if (content_ == nil) {
         NSString *filepath = [self filepath];
-        if (type_ == TSIncludeInstructionTypeFile) {
+        if (includeType_ == TSIncludeInstructionTypeFile) {
             // Return contents of file.
             NSError *error = nil;
             content_ = [[NSData alloc] initWithContentsOfFile:filepath options:0 error:&error];
@@ -97,7 +97,7 @@ loop_exit:
                 fprintf(stderr, "ERROR: Unable to load contents of file \"%s\": \"%s\".\n",
                         [filepath UTF8String], [[error localizedDescription] UTF8String]);
             }
-        } else if (type_ == TSIncludeInstructionTypePlist) {
+        } else if (includeType_ == TSIncludeInstructionTypePlist) {
             // Return contents of property list, converted to a legible format.
             NSError *error = nil;
             NSData *data = [[NSData alloc] initWithContentsOfFile:filepath options:0 error:&error];
