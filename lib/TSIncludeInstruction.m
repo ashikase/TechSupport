@@ -23,6 +23,7 @@ NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
 @implementation TSIncludeInstruction
 
 @synthesize content = content_;
+@synthesize commandScript = commandScript_;
 @synthesize filepath = filepath_;
 @synthesize includeType = includeType_;
 
@@ -82,6 +83,7 @@ loop_exit:
 
 - (void)dealloc {
     [content_ release];
+    [commandScript_ release];
     [filepath_ release];
     [super dealloc];
 }
