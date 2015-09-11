@@ -14,7 +14,7 @@
 
 #include "system_info.h"
 
-//#define BASE_URL_STRING @"http://myserver.com"
+#define BASE_URL_STRING @"http://ashikase.com/dropbox"
 #ifndef BASE_URL_STRING
 #error "Must define BASE_URL_STRING using your own server in order to use this demo."
 #endif
@@ -66,6 +66,7 @@
         // TODO: Replace "myserver.com/" with your own server and path structure.
         // NOTE: Sample file contents:
         //
+        //           link email developer@myserver.com is_support
         //           include as \"IconState\" plist /var/mobile/Library/SpringBoard/IconState.plist
         //           include as \"Package List\" command /usr/bin/dpkg -l
         //
@@ -82,16 +83,22 @@
 }
 
 - (void)generateWithInstructionLines:(NSArray *)lines {
-    // Create link instruction for email.
-    // NOTE: This could also have been included in the remote file.
-    TSLinkInstruction *linkInstruction = [TSLinkInstruction instructionWithString:@"link email developer@myserver.com is_support"];
+    // Link instruction for email.
+    TSLinkInstruction *linkInstruction = nil;
 
-    // Create an array of attachments.
+    // Array of attachments.
     NSMutableArray *includeInstructions = [NSMutableArray new];
+
+    // Parse instructions.
+    Class $TSLinkInstruction = [TSLinkInstruction class];
     for (NSString *line in lines) {
-        TSIncludeInstruction *includeInstruction = [TSIncludeInstruction instructionWithString:line];
-        if (includeInstruction != nil) {
-            [includeInstructions addObject:includeInstruction];
+        TSInstruction *instruction = [TSInstruction instructionWithString:line];
+        if (instruction != nil) {
+            if ([instruction isKindOfClass:$TSLinkInstruction]) {
+                linkInstruction = [TSLinkInstruction instructionWithString:line];
+            } else {
+                [includeInstructions addObject:instruction];
+            }
         }
     }
 
