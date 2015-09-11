@@ -10,6 +10,9 @@
 
 #import "TSInstruction.h"
 
+extern NSString * const kTSIncludeInstructionCommandScriptMarkerBegin;
+extern NSString * const kTSIncludeInstructionCommandScriptMarkerEnd;
+
 typedef enum {
     TSIncludeInstructionTypeFile,
     TSIncludeInstructionTypePlist,
@@ -18,6 +21,7 @@ typedef enum {
 
 @interface TSIncludeInstruction : TSInstruction
 @property(nonatomic, readonly) NSData *content;
+@property(nonatomic, copy) NSString *commandScript;
 @property(nonatomic, readonly) NSString *filepath;
 @property(nonatomic, readonly) TSIncludeInstructionType type;
 @end

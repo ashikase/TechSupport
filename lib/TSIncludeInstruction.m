@@ -10,6 +10,12 @@
 
 #import "TSIncludeInstruction.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
+NSString * const kTSIncludeInstructionCommandScriptMarkerBegin = @"<<EOF";
+NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
+
 @interface TSInstruction (Private)
 @property(nonatomic, copy) NSString *title;
 @end
@@ -109,9 +115,49 @@ loop_exit:
             }
         } else {
             // Return the output of a command.
+            const char *command = NULL;
+
+            NSString *commandScript = [self commandScript];
+            if (commandScript != nil) {
+                // Determine available filepath for a temporary file.
+                char tempFilepath[PATH_MAX];
+                strcpy(tempFilepath, "/tmp/crashreporter.XXXXXX");
+                int fd = mkstemp(tempFilepath);
+                if (fd == -1) {
+                    fprintf(stderr, "ERROR: Unable to create temporary file to store command script.\n");
+                    return nil;
+                }
+
+                // Write command script to temporary file.
+                const char *buf = [commandScript UTF8String];
+                size_t nbyte = strlen(buf);
+                ssize_t bytesWritten = write(fd, buf, nbyte);
+                if (bytesWritten != nbyte) {
+                    fprintf(stderr, "ERROR: Failed to write command script to temporary file.\n");
+                    close(fd);
+                    return nil;
+                }
+
+                // Set command script as executable (and read-only).
+                int result = fchmod(fd, S_IXUSR | S_IRUSR);
+                if (result != 0) {
+                    fprintf(stderr, "ERROR: Failed to set command script file as executable.\n");
+                    close(fd);
+                    return nil;
+                }
+
+                close(fd);
+
+                // Set command to run.
+                command = tempFilepath;
+            } else {
+                command = [filepath UTF8String];
+            }
+
             fflush(stdout);
-            FILE *f = popen([filepath UTF8String], "r");
+            FILE *f = popen(command, "r");
             if (f == NULL) {
+                fprintf(stderr, "ERROR: Failed to run command.\n");
                 return nil;
             }
 
