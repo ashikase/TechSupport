@@ -23,6 +23,7 @@ NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
 @implementation TSIncludeInstruction
 
 @synthesize content = content_;
+@synthesize command = command_;
 @synthesize commandScript = commandScript_;
 @synthesize filepath = filepath_;
 @synthesize includeType = includeType_;
@@ -37,11 +38,12 @@ NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
     self = [super initWithTokens:tokens];
     if (self != nil) {
         NSString *title = nil;
+        NSString *argument = nil;
 
         enum {
             ModeAttribute,
-            ModeFilepath,
-            ModeTitle
+            ModeTitle,
+            ModeTypeArgument
         } mode = ModeAttribute;
 
         NSUInteger count = [tokens count];
@@ -54,20 +56,20 @@ NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
                         mode = ModeTitle;
                     } else if ([token isEqualToString:@"file"]) {
                         includeType_ = TSIncludeInstructionTypeFile;
-                        mode = ModeFilepath;
+                        mode = ModeTypeArgument;
                     } else if ([token isEqualToString:@"command"]) {
                         includeType_ = TSIncludeInstructionTypeCommand;
-                        mode = ModeFilepath;
+                        mode = ModeTypeArgument;
                     } else if ([token isEqualToString:@"plist"]) {
                         includeType_ = TSIncludeInstructionTypePlist;
-                        mode = ModeFilepath;
+                        mode = ModeTypeArgument;
                     }
                     break;
                 case ModeTitle:
                     title = stripQuotes(token);
                     mode = ModeAttribute;
                     break;
-                case ModeFilepath:
+                case ModeTypeArgument:
                     goto loop_exit;
                 default:
                     break;
@@ -75,14 +77,20 @@ NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
         }
 
 loop_exit:
-        filepath_ = [stripQuotes([[tokens subarrayWithRange:NSMakeRange(index, (count - index))] componentsJoinedByString:@" "]) retain];
-        [self setTitle:(title ?: filepath_)];
+        argument = stripQuotes([[tokens subarrayWithRange:NSMakeRange(index, (count - index))] componentsJoinedByString:@" "]);
+        if (includeType_ == TSIncludeInstructionTypeCommand) {
+            command_ = [argument retain];
+        } else {
+            filepath_ = [argument retain];
+        }
+        [self setTitle:(title ?: argument)];
     }
     return self;
 }
 
 - (void)dealloc {
     [content_ release];
+    [command_ release];
     [commandScript_ release];
     [filepath_ release];
     [super dealloc];
@@ -90,9 +98,9 @@ loop_exit:
 
 - (NSData *)content {
     if (content_ == nil) {
-        NSString *filepath = [self filepath];
         if (includeType_ == TSIncludeInstructionTypeFile) {
             // Return contents of file.
+            NSString *filepath = [self filepath];
             NSError *error = nil;
             content_ = [[NSData alloc] initWithContentsOfFile:filepath options:0 error:&error];
             if (content_ == nil) {
@@ -101,6 +109,7 @@ loop_exit:
             }
         } else if (includeType_ == TSIncludeInstructionTypePlist) {
             // Return contents of property list, converted to a legible format.
+            NSString *filepath = [self filepath];
             NSError *error = nil;
             NSData *data = [[NSData alloc] initWithContentsOfFile:filepath options:0 error:&error];
             if (data != nil) {
@@ -153,7 +162,7 @@ loop_exit:
                 // Set command to run.
                 command = tempFilepath;
             } else {
-                command = [filepath UTF8String];
+                command = [[self command] UTF8String];
             }
 
             fflush(stdout);
