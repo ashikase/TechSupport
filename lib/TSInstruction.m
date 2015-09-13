@@ -158,7 +158,7 @@ static NSMutableDictionary *instructions$ = nil;
                 if (instruction != nil) {
                     [instructions addObject:instruction];
                 } else {
-                    NSLog(@"ERROR: Unknown instruction: %@", instructionString);
+                    LOGE("Unknown instruction: %@", instructionString);
                     instructions = nil;
                     break;
                 }
@@ -168,7 +168,7 @@ static NSMutableDictionary *instructions$ = nil;
     }
 
     if (isCollectingMultiline) {
-        NSLog(@"ERROR: Instruction is missing end-of-multiline marker.");
+        LOGE("Instruction is missing end-of-multiline marker.");
         instructions = nil;
     }
 

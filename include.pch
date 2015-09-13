@@ -1,3 +1,8 @@
+#include <asl.h>
+
+#define LOGE(__x__, ...) asl_log(NULL, NULL, ASL_LEVEL_ERR, "%s", [[NSString stringWithFormat:@"TS:Error: "__x__, ##__VA_ARGS__] UTF8String]);
+#define LOGW(__x__, ...) asl_log(NULL, NULL, ASL_LEVEL_WARNING, "%s", [[NSString stringWithFormat:@"TS:Warning: "__x__, ##__VA_ARGS__] UTF8String]);
+
 #undef NSLocalizedString
 #define NSLocalizedString(key, comment) \
     [[NSBundle bundleWithIdentifier:@FRAMEWORK_ID] localizedStringForKey:(key) value:@"" table:nil]

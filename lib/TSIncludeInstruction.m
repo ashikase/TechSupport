@@ -99,8 +99,7 @@ loop_exit:
             NSError *error = nil;
             content_ = [[NSData alloc] initWithContentsOfFile:filepath options:0 error:&error];
             if (content_ == nil) {
-                fprintf(stderr, "ERROR: Unable to load contents of file \"%s\": \"%s\".\n",
-                        [filepath UTF8String], [[error localizedDescription] UTF8String]);
+                LOGE("Unable to load contents of file \"%@\": \"%@\".", filepath, [error localizedDescription]);
             }
         } else if (includeType_ == TSIncludeInstructionTypePlist) {
             // Return contents of property list, converted to a legible format.
@@ -116,8 +115,7 @@ loop_exit:
                 }
                 content_ = [[[plist description] dataUsingEncoding:NSUTF8StringEncoding] retain];
             } else {
-                fprintf(stderr, "ERROR: Unable to load data from \"%s\": \"%s\".\n",
-                        [filepath UTF8String], [[error localizedDescription] UTF8String]);
+                LOGE("Unable to load data from \"%@\": \"%@\".", filepath, [error localizedDescription]);
             }
         } else {
             // Return the output of a command.
@@ -131,7 +129,7 @@ loop_exit:
                 strcpy(tempFilepath, "/tmp/crashreporter.XXXXXX");
                 int fd = mkstemp(tempFilepath);
                 if (fd == -1) {
-                    fprintf(stderr, "ERROR: Unable to create temporary file to store command script.\n");
+                    LOGE("Unable to create temporary file to store command script.");
                     return nil;
                 }
 
@@ -139,7 +137,7 @@ loop_exit:
                 size_t nbyte = strlen(command);
                 ssize_t bytesWritten = write(fd, command, nbyte);
                 if (bytesWritten != nbyte) {
-                    fprintf(stderr, "ERROR: Failed to write command script to temporary file.\n");
+                    LOGE("Failed to write command script to temporary file.");
                     close(fd);
                     return nil;
                 }
@@ -147,7 +145,7 @@ loop_exit:
                 // Set command script as executable (and read-only).
                 int result = fchmod(fd, S_IXUSR | S_IRUSR);
                 if (result != 0) {
-                    fprintf(stderr, "ERROR: Failed to set command script file as executable.\n");
+                    LOGE(@"Failed to set command script file as executable.");
                     close(fd);
                     return nil;
                 }
@@ -161,7 +159,7 @@ loop_exit:
             fflush(stdout);
             FILE *f = popen(command, "r");
             if (f == NULL) {
-                fprintf(stderr, "ERROR: Failed to run command.\n");
+                LOGE("Failed to run command.");
                 return nil;
             }
 
