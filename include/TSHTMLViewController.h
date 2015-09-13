@@ -11,8 +11,10 @@
 #import <UIKit/UIKit.h>
 
 @interface TSHTMLViewController : UIViewController
+@property(nonatomic, readonly) UIWebView *webView;
 - (id)initWithHTMLContent:(NSString *)content;
 - (id)initWithHTMLContent:(NSString *)content dataDetector:(UIDataDetectorTypes)dataDetectors;
+- (void)setContent:(NSString *)content;
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

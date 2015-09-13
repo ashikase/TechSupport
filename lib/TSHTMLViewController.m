@@ -61,9 +61,13 @@ static NSString *escapedHTMLString(NSString *string) {
 }
 
 @implementation TSHTMLViewController {
-    NSString *content_;
     UIWebView *webView_;
+
+    NSString *content_;
+    UIDataDetectorTypes dataDetectors_;
 }
+
+@synthesize webView = webView_;
 
 - (id)initWithHTMLContent:(NSString *)content {
     return [self initWithHTMLContent:content dataDetector:UIDataDetectorTypeNone];
@@ -72,18 +76,14 @@ static NSString *escapedHTMLString(NSString *string) {
 - (id)initWithHTMLContent:(NSString *)content dataDetector:(UIDataDetectorTypes)dataDetectors {
     self = [super init];
     if (self != nil) {
-        content_ = [[NSString alloc] initWithFormat:
-            @"<html><head><title>.</title></head><body><pre style=\"font-size:8pt;\">%@</pre></body></html>",
-            escapedHTMLString(content)];
+        [self setContent:content];
+        dataDetectors_ = dataDetectors;
 
-        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0.0, 0.0, 0.0, 0.0)];
-        if (IOS_LT(5_0)) {
-            [[webView _scrollView] setBounces:NO];
-        } else {
-            [[webView scrollView] setBounces:NO];
-        }
-        webView.dataDetectorTypes = dataDetectors;
-        webView_ = webView;
+        NSString *title = NSLocalizedString(@"COPY", nil);
+        UIBarButtonItem *copyButton = [[UIBarButtonItem alloc] initWithTitle:title
+            style:UIBarButtonItemStyleBordered target:self action:@selector(copyTextContent)];
+        self.navigationItem.rightBarButtonItem = copyButton;
+        [copyButton release];
     }
     return self;
 }
@@ -99,18 +99,28 @@ static NSString *escapedHTMLString(NSString *string) {
 }
 
 - (void)loadView {
-    self.view = webView_;
+    UIScreen *mainScreen = [UIScreen mainScreen];
+    CGRect screenBounds = [mainScreen bounds];
+    CGRect rect = CGRectMake(0.0, 0.0, screenBounds.size.width, screenBounds.size.height);
 
-    NSString *title = NSLocalizedString(@"COPY", nil);
-    UIBarButtonItem *copyButton = [[UIBarButtonItem alloc] initWithTitle:title
-        style:UIBarButtonItemStyleBordered target:self action:@selector(copyTextContent)];
-    self.navigationItem.rightBarButtonItem = copyButton;
-    [copyButton release];
+    UIWebView *webView = [[UIWebView alloc] initWithFrame:rect];
+    webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    webView.dataDetectorTypes = dataDetectors_;
+    if (IOS_LT(5_0)) {
+        [[webView _scrollView] setBounces:NO];
+    } else {
+        [[webView scrollView] setBounces:NO];
+    }
+    [webView loadHTMLString:content_ baseURL:nil];
+    webView_ = webView;
+
+    UIView *view = [[UIView alloc] initWithFrame:rect];
+    view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    view.backgroundColor = [UIColor whiteColor];
+    [view addSubview:webView_];
+    self.view = view;
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [webView_ loadHTMLString:content_ baseURL:nil];
-}
 
 #pragma mark - Actions
 
@@ -118,6 +128,19 @@ static NSString *escapedHTMLString(NSString *string) {
     UIWebDocumentView *webDocView = [webView_ _documentView];
     [webDocView becomeFirstResponder];
     [UIPasteboard generalPasteboard].string = [webDocView text];
+}
+
+#pragma mark - Other
+
+- (void)setContent:(NSString *)content {
+    [content_ release];
+    content_ = [[NSString alloc] initWithFormat:
+        @"<html><head><title>.</title></head><body><pre style=\"font-size:8pt;\">%@</pre></body></html>",
+        escapedHTMLString(content)];
+
+    if ([self isViewLoaded]) {
+        [webView_ loadHTMLString:content_ baseURL:nil];
+    }
 }
 
 @end
