@@ -59,6 +59,13 @@ static NSArray *tokenize(NSString *string) {
             if ([scanner scanString:@"\"" intoString:NULL]) {
                 inQuote = YES;
             }
+
+            // FIXME: This is a cludge for supporting multiline commands (i.e. scripts).
+            if ([token isEqualToString:@"command"]) {
+                // Capture remainder of string as a single token.
+                [result addObject:[string substringFromIndex:[scanner scanLocation]]];
+                break;
+            }
         } else {
             break;
         }
@@ -134,9 +141,8 @@ static NSMutableDictionary *instructions$ = nil;
             line = [line stringByTrimmingCharactersInSet:whitespaceSet];
             if ([line hasSuffix:kTSInstructionMultilineMarkerBegin]) {
                 // Beginning of multiline instruction.
-                // NOTE: Remove beginning-of-multiline marker and extra whitespace.
+                // NOTE: Remove beginning-of-multiline marker.
                 line = [line substringToIndex:([line length] - [kTSInstructionMultilineMarkerBegin length])];
-                line = [line stringByTrimmingCharactersInSet:whitespaceSet];
                 multilines = [[NSMutableArray alloc] init];
                 [multilines addObject:line];
                 isCollectingMultiline = YES;
