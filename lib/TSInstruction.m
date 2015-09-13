@@ -162,7 +162,7 @@ static NSMutableDictionary *instructions$ = nil;
     }
 
     if (isCollectingMultiline) {
-        NSLog(@"ERROR: Include command is missing end-of-multiline marker.");
+        NSLog(@"ERROR: Instruction is missing end-of-multiline marker.");
         instructions = nil;
     }
 
