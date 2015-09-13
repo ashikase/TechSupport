@@ -27,8 +27,8 @@
 
 // NOTE: Format is:
 //
-//       include [as <title>] file <filename>
 //       include [as <title>] command <command>
+//       include [as <title>] file <filename>
 //       include [as <title>] plist <filename>
 //
 - (instancetype)initWithTokens:(NSArray *)tokens {
@@ -51,11 +51,11 @@
                 case ModeAttribute:
                     if ([token isEqualToString:@"as"]) {
                         mode = ModeTitle;
-                    } else if ([token isEqualToString:@"file"]) {
-                        includeType_ = TSIncludeInstructionTypeFile;
-                        mode = ModeTypeArgument;
                     } else if ([token isEqualToString:@"command"]) {
                         includeType_ = TSIncludeInstructionTypeCommand;
+                        mode = ModeTypeArgument;
+                    } else if ([token isEqualToString:@"file"]) {
+                        includeType_ = TSIncludeInstructionTypeFile;
                         mode = ModeTypeArgument;
                     } else if ([token isEqualToString:@"plist"]) {
                         includeType_ = TSIncludeInstructionTypePlist;
