@@ -21,7 +21,6 @@
 
 @synthesize content = content_;
 @synthesize command = command_;
-@synthesize commandScript = commandScript_;
 @synthesize filepath = filepath_;
 @synthesize includeType = includeType_;
 
@@ -88,7 +87,6 @@ loop_exit:
 - (void)dealloc {
     [content_ release];
     [command_ release];
-    [commandScript_ release];
     [filepath_ release];
     [super dealloc];
 }
@@ -123,10 +121,11 @@ loop_exit:
             }
         } else {
             // Return the output of a command.
-            const char *command = NULL;
+            const char *command = [[self command] UTF8String];
 
-            NSString *commandScript = [self commandScript];
-            if (commandScript != nil) {
+            // Determine if command is multiline (i.e. a script).
+            char *newline = strstr(command, "\n");
+            if (newline != NULL) {
                 // Determine available filepath for a temporary file.
                 char tempFilepath[PATH_MAX];
                 strcpy(tempFilepath, "/tmp/crashreporter.XXXXXX");
@@ -137,9 +136,8 @@ loop_exit:
                 }
 
                 // Write command script to temporary file.
-                const char *buf = [commandScript UTF8String];
-                size_t nbyte = strlen(buf);
-                ssize_t bytesWritten = write(fd, buf, nbyte);
+                size_t nbyte = strlen(command);
+                ssize_t bytesWritten = write(fd, command, nbyte);
                 if (bytesWritten != nbyte) {
                     fprintf(stderr, "ERROR: Failed to write command script to temporary file.\n");
                     close(fd);
@@ -158,8 +156,6 @@ loop_exit:
 
                 // Set command to run.
                 command = tempFilepath;
-            } else {
-                command = [[self command] UTF8String];
             }
 
             fflush(stdout);
