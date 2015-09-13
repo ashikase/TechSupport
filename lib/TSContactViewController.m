@@ -407,7 +407,14 @@ static const CGFloat kTableRowHeight = 48.0;
 
     TSIncludeInstruction *instruction = [includeInstructions_ objectAtIndex:indexPath.row];
     cell.textLabel.text = [instruction title];
-    cell.detailTextLabel.text = [instruction filepath];
+    if ([instruction includeType] == TSIncludeInstructionTypeCommand) {
+        NSString *command = [instruction command];
+        NSRange range = [command rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]];
+        cell.detailTextLabel.text = (range.location == NSNotFound) ? command : @"<multiline command>";
+    } else {
+        cell.detailTextLabel.text = [instruction filepath];
+    }
+
     [tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
     return cell;
 }
