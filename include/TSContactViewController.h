@@ -73,6 +73,17 @@
  */
 - (id)initWithPackage:(TSPackage *)package linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions;
 
+/**
+ * Initializer.
+ *
+ * @param package The package to generate an email for.
+ * @param instructions Array of TSInstruction objects specifying
+ *        to whom to send and what to attach to the generated email.
+ *
+ * @return A new TSContactViewController instance.
+ */
+- (id)initWithPackage:(TSPackage *)package instructions:(NSArray *)instructions;
+
 @end
 
 /* vim: set ft=objc ff=unix sw=4 ts=4 tw=80 expandtab: */

@@ -15,6 +15,7 @@
 //#import "ModalActionSheet.h"
 //#import "pastie.h"
 
+#import "TSEmailInstruction.h"
 #import "TSIncludeInstruction.h"
 #import "TSLinkInstruction.h"
 #import "TSPackage.h"
@@ -37,7 +38,8 @@ static const CGFloat kTableRowHeight = 48.0;
     NSString *defaultPlaceholderText_;
 
     TSPackage *package_;
-    TSLinkInstruction *linkInstruction_;
+    NSArray *instructions_;
+    TSInstruction *recipientInstruction_;
     NSArray *includeInstructions_;
 }
 
@@ -54,8 +56,34 @@ static const CGFloat kTableRowHeight = 48.0;
     self = [super init];
     if (self != nil) {
         package_ = [package retain];
-        linkInstruction_ = [linkInstruction retain];
+        recipientInstruction_ = [linkInstruction retain];
         includeInstructions_ = [includeInstructions copy];
+
+        defaultPlaceholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
+
+        UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(generateButtonTapped)];
+        self.navigationItem.rightBarButtonItem = buttonItem;
+        [buttonItem release];
+    }
+    return self;
+}
+
+- (id)initWithPackage:(TSPackage *)package instructions:(NSArray *)instructions {
+    self = [super init];
+    if (self != nil) {
+        package_ = [package retain];
+
+        NSMutableArray *includeInstructions = [[NSMutableArray alloc] init];
+        TSInstruction *recipientInstruction = nil;
+        for (TSInstruction *instruction in instructions) {
+            if ([instruction isKindOfClass:[TSIncludeInstruction class]]) {
+                [includeInstructions addObject:instruction];
+            } else {
+                recipientInstruction = instruction;
+            }
+        }
+        includeInstructions_ = includeInstructions;
+        recipientInstruction_ = [recipientInstruction retain];
 
         defaultPlaceholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
 
@@ -78,7 +106,7 @@ static const CGFloat kTableRowHeight = 48.0;
     [byline_ release];
 
     [package_ release];
-    [linkInstruction_ release];
+    [recipientInstruction_ release];
     [includeInstructions_ release];
 
     [super dealloc];
@@ -247,14 +275,29 @@ static const CGFloat kTableRowHeight = 48.0;
         return;
     }
 
-    if ([linkInstruction_ isEmail]) {
+    if ([recipientInstruction_ isKindOfClass:[TSEmailInstruction class]] || [(TSLinkInstruction *)recipientInstruction_ isEmail]) {
         if ([MFMailComposeViewController canSendMail]) {
             // Setup mail controller.
             MFMailComposeViewController *controller = [MFMailComposeViewController new];
             [controller setMailComposeDelegate:self];
             [controller setMessageBody:[self messageBodyWithDetails] isHTML:NO];
-            [controller setSubject:[self subject]];
-            [controller setToRecipients:[linkInstruction_ recipients]];
+
+            NSString *subject = nil;
+            if ([recipientInstruction_ isKindOfClass:[TSEmailInstruction class]]) {
+                subject = [(TSEmailInstruction *)recipientInstruction_ subject];
+            }
+            if (subject == nil) {
+                subject = [self subject];
+            }
+            [controller setSubject:subject];
+
+            NSArray *recipients = nil;
+            if ([recipientInstruction_ isKindOfClass:[TSEmailInstruction class]]) {
+                recipients = [NSArray arrayWithObject:[(TSEmailInstruction *)recipientInstruction_ toAddress]];
+            } else {
+                recipients = [(TSLinkInstruction *)recipientInstruction_ recipients];
+            }
+            [controller setToRecipients:recipients];
 
             // Add attachments.
             for (TSIncludeInstruction *instruction in [self selectedAttachments]) {
@@ -292,7 +335,7 @@ static const CGFloat kTableRowHeight = 48.0;
             [string appendString:@"\n"];
             [string appendString:urlsString];
             [UIPasteboard generalPasteboard].string = string;
-            [[UIApplication sharedApplication] openURL:[linkInstruction_ url]];
+            [[UIApplication sharedApplication] openURL:[(TSLinkInstruction *)recipientInstruction_ url]];
             [string release];
         }
     }
