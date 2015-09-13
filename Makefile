@@ -3,6 +3,7 @@ FRAMEWORK_ID = jp.ashikase.TechSupport
 
 TechSupport_OBJC_FILES = \
     lib/TSContactViewController.m \
+    lib/TSEmailInstruction.m \
     lib/TSHTMLViewController.m \
     lib/TSIncludeInstruction.m \
     lib/TSInstruction.m \
