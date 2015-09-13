@@ -10,9 +10,13 @@
 
 #import "TSInstruction.h"
 
+#import "TSEmailInstruction.h"
 #import "TSIncludeInstruction.h"
 #import "TSLinkInstruction.h"
 #import "TSPackage.h"
+
+static NSString * const kTSInstructionMultilineMarkerBegin = @"<<END";
+static NSString * const kTSInstructionMultilineMarkerEnd = @"END";
 
 NSString *stripQuotes(NSString *string) {
     NSUInteger length = [string length];
@@ -83,7 +87,9 @@ static NSMutableDictionary *instructions$ = nil;
             Class klass = Nil;
 
             NSString *firstToken = [tokens objectAtIndex:0];
-            if ([firstToken isEqualToString:@"include" ]) {
+            if ([firstToken isEqualToString:@"email"]) {
+                klass = [TSEmailInstruction class];
+            } else if ([firstToken isEqualToString:@"include" ]) {
                 klass = [TSIncludeInstruction class];
             } else if ([firstToken isEqualToString:@"link"]) {
                 klass = [TSLinkInstruction class];
@@ -99,6 +105,68 @@ static NSMutableDictionary *instructions$ = nil;
         }
     }
     return instruction;
+}
+
++ (NSArray *)instructionsWithString:(NSString *)string {
+    NSMutableArray *instructions = [NSMutableArray array];
+
+    NSMutableArray *multilines = nil;
+    BOOL isCollectingMultiline = NO;
+
+    NSArray *lines = [string componentsSeparatedByString:@"\n"];
+    for (NSString *line in lines) {
+        NSString *instructionString = nil;
+
+        if (isCollectingMultiline) {
+            // Is collecting lines of a multiline instruction.
+            if ([line isEqualToString:kTSInstructionMultilineMarkerEnd]) {
+                // End of multiline.
+                instructionString = [multilines componentsJoinedByString:@"\n"];
+                [multilines release];
+                multilines = nil;
+                isCollectingMultiline = NO;
+            } else {
+                [multilines addObject:line];
+            }
+        } else {
+            // Is reading next instruction.
+            NSCharacterSet *whitespaceSet = [NSCharacterSet whitespaceCharacterSet];
+            line = [line stringByTrimmingCharactersInSet:whitespaceSet];
+            if ([line hasSuffix:kTSInstructionMultilineMarkerBegin]) {
+                // Beginning of multiline instruction.
+                // NOTE: Remove beginning-of-multiline marker and extra whitespace.
+                line = [line substringToIndex:([line length] - [kTSInstructionMultilineMarkerBegin length])];
+                line = [line stringByTrimmingCharactersInSet:whitespaceSet];
+                multilines = [[NSMutableArray alloc] init];
+                [multilines addObject:line];
+                isCollectingMultiline = YES;
+            } else {
+                instructionString = line;
+            }
+        }
+
+        if (instructionString != nil) {
+            // NOTE: Ignore blank lines and lines that start with '#'.
+            if (([instructionString length] > 0) && ![instructionString hasPrefix:@"#"]) {
+                TSInstruction *instruction = [TSInstruction instructionWithString:instructionString];
+                if (instruction != nil) {
+                    [instructions addObject:instruction];
+                } else {
+                    NSLog(@"ERROR: Unknown instruction: %@", instructionString);
+                    instructions = nil;
+                    break;
+                }
+            }
+        }
+
+    }
+
+    if (isCollectingMultiline) {
+        NSLog(@"ERROR: Include command is missing end-of-multiline marker.");
+        instructions = nil;
+    }
+
+    return instructions;
 }
 
 + (void)flushInstructions {

@@ -10,9 +10,6 @@
 
 #import "TSInstruction.h"
 
-extern NSString * const kTSIncludeInstructionCommandScriptMarkerBegin;
-extern NSString * const kTSIncludeInstructionCommandScriptMarkerEnd;
-
 typedef enum {
     TSIncludeInstructionTypeFile,
     TSIncludeInstructionTypePlist,

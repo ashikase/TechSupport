@@ -16,6 +16,7 @@
 @property(nonatomic, copy) NSString *title;
 @property(nonatomic, readonly) NSArray *tokens;
 + (instancetype)instructionWithString:(NSString *)string;
++ (NSArray *)instructionsWithString:(NSString *)string;
 + (void)flushInstructions;
 - (instancetype)initWithTokens:(NSArray *)tokens;
 - (NSComparisonResult)compare:(TSInstruction *)other;

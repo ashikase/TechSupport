@@ -13,9 +13,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-NSString * const kTSIncludeInstructionCommandScriptMarkerBegin = @"<<EOF";
-NSString * const kTSIncludeInstructionCommandScriptMarkerEnd = @"EOF";
-
 @interface TSInstruction (Private)
 @property(nonatomic, copy) NSString *title;
 @end
