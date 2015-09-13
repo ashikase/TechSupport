@@ -106,6 +106,7 @@ static NSString *escapedHTMLString(NSString *string) {
     UIWebView *webView = [[UIWebView alloc] initWithFrame:rect];
     webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     webView.dataDetectorTypes = dataDetectors_;
+    webView.scalesPageToFit = YES;
     if (IOS_LT(5_0)) {
         [[webView _scrollView] setBounces:NO];
     } else {
@@ -135,7 +136,7 @@ static NSString *escapedHTMLString(NSString *string) {
 - (void)setContent:(NSString *)content {
     [content_ release];
     content_ = [[NSString alloc] initWithFormat:
-        @"<html><head><title>.</title></head><body><pre style=\"font-size:8pt;\">%@</pre></body></html>",
+        @"<html><head><title>.</title><meta name='viewport' content='initial-scale=1.0,maximum-scale=3.0'/></head><body><pre style=\"font-size:8pt;\">%@</pre></body></html>",
         escapedHTMLString(content)];
 
     if ([self isViewLoaded]) {
