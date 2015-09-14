@@ -1,3 +1,12 @@
+> # Version 1.3.0
+> - - -
+> * NEW: Added 'email' instruction.
+>     * This replaces the email portion of the 'link' instruction.
+> * MOD: Added support for multiline commands.
+> * MOD: Enabled pinch-to-zoom for HTML controller.
+
+- - -
+
 > # Version 1.2.1
 > - - -
 > * LOC: Added Czech localization.
