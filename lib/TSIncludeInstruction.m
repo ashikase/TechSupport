@@ -13,6 +13,53 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+static NSString *mimeTypeForExtension(NSString *extension) {
+    NSDictionary *mimeTypes = @{
+        // Plain Text
+        @"txt"  : @"text/plain",
+
+        // Plain Binary
+        @"bin"  : @"application/octet-stream",
+
+        // Archives
+        @"bz"   : @"application/x-bzip",
+        @"bz2"  : @"application/x-bzip2",
+        @"deb"  : @"application/x-debian-package",
+        @"tar"  : @"application/x-tar",
+        @"zip"  : @"application/zip",
+
+        // Audio
+        @"aac"  : @"audio/x-aac",
+        @"aif"  : @"audio/x-aiff",
+        @"aiff" : @"audio/x-aiff",
+        @"mp3"  : @"audio/x-mpeg",
+        @"wav"  : @"audio/x-wav",
+
+        // Fonts
+        @"ttf"  : @"application/x-font-ttf",
+
+        // Images
+        @"bmp"  : @"image/bmp",
+        @"gif"  : @"image/gif",
+        @"jpg"  : @"image/jpeg",
+        @"jpeg" : @"image/jpeg",
+        @"png"  : @"image/png",
+        @"svg"  : @"image/svg+xml",
+
+        // Text
+        @"css"  : @"text/css",
+        @"csv"  : @"text/csv",
+        @"html" : @"text/html",
+        @"js"   : @"application/javascript",
+        @"json" : @"application/json",
+        @"sh"   : @"application/x-sh",
+        @"tsv"  : @"text/tab-separated-values",
+        @"xml"  : @"application/xml",
+        @"yaml" : @"text/yaml"
+    };
+    return [mimeTypes objectForKey:extension];
+}
+
 @interface TSInstruction (Private)
 @property(nonatomic, copy) NSString *title;
 @end
@@ -22,13 +69,14 @@
 @synthesize content = content_;
 @synthesize command = command_;
 @synthesize filepath = filepath_;
+@synthesize mimeType = mimeType_;
 @synthesize includeType = includeType_;
 
 // NOTE: Format is:
 //
-//       include [as <title>] command <command>
-//       include [as <title>] file <filename>
-//       include [as <title>] plist <filename>
+//       include [as <title>] [mimetype <mimetype>] command <command>
+//       include [as <title>] [mimetype <mimetype>] file <filename>
+//       include [as <title>] [mimetype <mimetype>] plist <filename>
 //
 - (instancetype)initWithTokens:(NSArray *)tokens {
     self = [super initWithTokens:tokens];
@@ -38,6 +86,7 @@
 
         enum {
             ModeAttribute,
+            ModeMimeType,
             ModeTitle,
             ModeTypeArgument
         } mode = ModeAttribute;
@@ -50,6 +99,8 @@
                 case ModeAttribute:
                     if ([token isEqualToString:@"as"]) {
                         mode = ModeTitle;
+                    } else if ([token isEqualToString:@"mimetype"]) {
+                        mode = ModeMimeType;
                     } else if ([token isEqualToString:@"command"]) {
                         includeType_ = TSIncludeInstructionTypeCommand;
                         mode = ModeTypeArgument;
@@ -60,6 +111,10 @@
                         includeType_ = TSIncludeInstructionTypePlist;
                         mode = ModeTypeArgument;
                     }
+                    break;
+                case ModeMimeType:
+                    mimeType_ = [stripQuotes(token) retain];
+                    mode = ModeAttribute;
                     break;
                 case ModeTitle:
                     title = stripQuotes(token);
@@ -88,6 +143,7 @@ loop_exit:
     [content_ release];
     [command_ release];
     [filepath_ release];
+    [mimeType_ release];
     [super dealloc];
 }
 
@@ -185,6 +241,28 @@ loop_exit:
         }
     }
     return content_;
+}
+
+- (NSString *)mimeType {
+    if (mimeType_ == nil) {
+        const TSIncludeInstructionType includeType = [self includeType];
+        if (includeType == TSIncludeInstructionTypePlist) {
+            mimeType_ = @"application/x-plist";
+        } else if (includeType == TSIncludeInstructionTypeFile) {
+            mimeType_ = mimeTypeForExtension([[self filepath] pathExtension]);
+        }
+
+        if (mimeType_ == nil) {
+            // Determine if content is text or binary.
+            NSString *string = [[NSString alloc] initWithData:[self content] encoding:NSUTF8StringEncoding];
+            mimeType_ = (string != nil) ? @"text/plain" : @"application/octet-stream";
+            [string release];
+        }
+
+        // NOTE: For string literals, this is a no-op.
+        [mimeType_ retain];
+    }
+    return mimeType_;
 }
 
 @end

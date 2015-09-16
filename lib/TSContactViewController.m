@@ -308,8 +308,7 @@ static const CGFloat kTableRowHeight = 48.0;
                     NSString *filepath = [instruction filepath];
                     NSString *filename = (includeType == TSIncludeInstructionTypeCommand) ?
                         [[instruction title] stringByAppendingPathExtension:@"txt"] : [filepath lastPathComponent];
-                    NSString *mimeType = (includeType == TSIncludeInstructionTypePlist) ?
-                        @"application/x-plist" : @"text/plain";
+                    NSString *mimeType = [instruction mimeType];
                     [controller addAttachmentData:data mimeType:mimeType fileName:filename];
                 }
             }

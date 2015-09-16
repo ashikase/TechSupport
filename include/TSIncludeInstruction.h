@@ -20,6 +20,7 @@ typedef enum {
 @property(nonatomic, readonly) NSData *content;
 @property(nonatomic, readonly) NSString *command;
 @property(nonatomic, readonly) NSString *filepath;
+@property(nonatomic, readonly) NSString *mimeType;
 @property(nonatomic, readonly) TSIncludeInstructionType includeType;
 @end
 
