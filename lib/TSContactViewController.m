@@ -34,6 +34,7 @@ static const CGFloat kTableRowHeight = 48.0;
 @implementation TSContactViewController {
     UITextView *textView_;
     UITableView *tableView_;
+    BOOL hasShownIntroduction_;
 
     NSString *defaultPlaceholderText_;
 
@@ -172,6 +173,21 @@ static void init(TSContactViewController *self) {
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     return interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    if (!hasShownIntroduction_) {
+        NSString *title = NSLocalizedString(@"CONTACT_INTRO_TITLE", nil);
+        NSString *message = [NSString stringWithFormat:NSLocalizedString(@"CONTACT_INTRO_MESSAGE", nil),
+            NSLocalizedString(@"SUBMIT", nil), NSLocalizedString(@"CANCEL", nil)];
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil
+            cancelButtonTitle:nil
+            otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
+        [alertView show];
+        [alertView release];
+
+        hasShownIntroduction_ = YES;
+    }
 }
 
 #pragma mark - Other
