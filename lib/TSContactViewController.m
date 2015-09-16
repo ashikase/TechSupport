@@ -262,6 +262,22 @@ static const CGFloat kTableRowHeight = 48.0;
 }
 
 - (void)generateButtonTapped {
+    if ([recipientInstruction_ isKindOfClass:[TSEmailInstruction class]] || [(TSLinkInstruction *)recipientInstruction_ isEmail]) {
+        NSString *title = NSLocalizedString(@"GENERATE_EMAIL_TITLE", nil);
+        NSString *message = NSLocalizedString(@"GENERATE_EMAIL_MESSAGE", nil);
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:self
+            cancelButtonTitle:nil
+            otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
+        [alertView show];
+        [alertView release];
+    } else {
+        [self generate];
+    }
+}
+
+#pragma mark - Other
+
+- (void)generate {
     NSString *okMessage = NSLocalizedString(@"OK", nil);
 
     NSString *detailText = textView_.text;
@@ -366,6 +382,13 @@ static const CGFloat kTableRowHeight = 48.0;
         }
     }
 }
+
+#pragma mark - Delegate (UIAlertViewDelegate)
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    [self generate];
+}
+
 #pragma mark - Delegate (UITableViewDataSource)
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
