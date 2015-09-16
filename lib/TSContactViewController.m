@@ -52,6 +52,23 @@ static const CGFloat kTableRowHeight = 48.0;
 
 #pragma mark - Creation & Destruction
 
+static void init(TSContactViewController *self) {
+    self->defaultPlaceholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
+
+    UIBarButtonItem *buttonItem;
+    NSString *title;
+
+    title = NSLocalizedString(@"CANCEL", nil);
+    buttonItem = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(cancelButtonTapped)];
+    self.navigationItem.leftBarButtonItem = buttonItem;
+    [buttonItem release];
+
+    title = NSLocalizedString(@"SUBMIT", nil);
+    buttonItem = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(submitButtonTapped)];
+    self.navigationItem.rightBarButtonItem = buttonItem;
+    [buttonItem release];
+}
+
 - (id)initWithPackage:(TSPackage *)package linkInstruction:(TSLinkInstruction *)linkInstruction includeInstructions:(NSArray *)includeInstructions {
     self = [super init];
     if (self != nil) {
@@ -59,11 +76,7 @@ static const CGFloat kTableRowHeight = 48.0;
         recipientInstruction_ = [linkInstruction retain];
         includeInstructions_ = [includeInstructions copy];
 
-        defaultPlaceholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
-
-        UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(generateButtonTapped)];
-        self.navigationItem.rightBarButtonItem = buttonItem;
-        [buttonItem release];
+        init(self);
     }
     return self;
 }
@@ -85,11 +98,7 @@ static const CGFloat kTableRowHeight = 48.0;
         includeInstructions_ = includeInstructions;
         recipientInstruction_ = [recipientInstruction retain];
 
-        defaultPlaceholderText_ = [NSLocalizedString(@"EMAIL_PLACEHOLDER", nil) retain];
-
-        UIBarButtonItem *buttonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(generateButtonTapped)];
-        self.navigationItem.rightBarButtonItem = buttonItem;
-        [buttonItem release];
+        init(self);
     }
     return self;
 }
@@ -257,27 +266,31 @@ static const CGFloat kTableRowHeight = 48.0;
 
 #pragma mark - Actions (UIBarButtonItem)
 
+- (void)cancelButtonTapped {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 - (void)doneButtonTapped {
      [textView_ resignFirstResponder];
 }
 
-- (void)generateButtonTapped {
+- (void)submitButtonTapped {
     if ([recipientInstruction_ isKindOfClass:[TSEmailInstruction class]] || [(TSLinkInstruction *)recipientInstruction_ isEmail]) {
-        NSString *title = NSLocalizedString(@"GENERATE_EMAIL_TITLE", nil);
-        NSString *message = NSLocalizedString(@"GENERATE_EMAIL_MESSAGE", nil);
+        NSString *title = NSLocalizedString(@"SUBMIT_EMAIL_TITLE", nil);
+        NSString *message = NSLocalizedString(@"SUBMIT_EMAIL_MESSAGE", nil);
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:message delegate:self
             cancelButtonTitle:nil
             otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
         [alertView show];
         [alertView release];
     } else {
-        [self generate];
+        [self submit];
     }
 }
 
 #pragma mark - Other
 
-- (void)generate {
+- (void)submit {
     NSString *okMessage = NSLocalizedString(@"OK", nil);
 
     NSString *detailText = textView_.text;
@@ -386,7 +399,7 @@ static const CGFloat kTableRowHeight = 48.0;
 #pragma mark - Delegate (UIAlertViewDelegate)
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    [self generate];
+    [self submit];
 }
 
 #pragma mark - Delegate (UITableViewDataSource)
