@@ -1,3 +1,12 @@
+> # Version 1.4.0
+> - - -
+> * NEW: Added optional 'mimetype' parameter to include instruction.
+> * NEW: An introductory message is now displayed when contact form is presented.
+> * NEW: An explanatory message is now displayed when submit button is tapped.
+> * MOD: Changed submission button appearance, now shows text "Submit" instead of action icon.
+
+- - -
+
 > # Version 1.3.0
 > - - -
 > * NEW: Added 'email' instruction.
