@@ -64,10 +64,19 @@ static NSString *escapedHTMLString(NSString *string) {
     UIWebView *webView_;
 
     NSString *content_;
+    NSURL *url_;
     UIDataDetectorTypes dataDetectors_;
 }
 
 @synthesize webView = webView_;
+
+static void init(TSHTMLViewController *self) {
+    NSString *title = NSLocalizedString(@"COPY", nil);
+    UIBarButtonItem *copyButton = [[UIBarButtonItem alloc] initWithTitle:title
+        style:UIBarButtonItemStyleBordered target:self action:@selector(copyTextContent)];
+    self.navigationItem.rightBarButtonItem = copyButton;
+    [copyButton release];
+}
 
 - (id)initWithHTMLContent:(NSString *)content {
     return [self initWithHTMLContent:content dataDetector:UIDataDetectorTypeNone];
@@ -78,17 +87,27 @@ static NSString *escapedHTMLString(NSString *string) {
     if (self != nil) {
         [self setContent:content];
         dataDetectors_ = dataDetectors;
+        init(self);
+    }
+    return self;
+}
 
-        NSString *title = NSLocalizedString(@"COPY", nil);
-        UIBarButtonItem *copyButton = [[UIBarButtonItem alloc] initWithTitle:title
-            style:UIBarButtonItemStyleBordered target:self action:@selector(copyTextContent)];
-        self.navigationItem.rightBarButtonItem = copyButton;
-        [copyButton release];
+- (id)initWithURL:(NSURL *)url {
+    return [self initWithURL:url dataDetector:UIDataDetectorTypeNone];
+}
+
+- (id)initWithURL:(NSURL *)url dataDetector:(UIDataDetectorTypes)dataDetectors {
+    self = [super init];
+    if (self != nil) {
+        url_ = [url retain];
+        dataDetectors_ = dataDetectors;
+        init(self);
     }
     return self;
 }
 
 - (void)dealloc {
+    [url_ release];
     [content_ release];
     [webView_ release];
     [super dealloc];
@@ -112,7 +131,13 @@ static NSString *escapedHTMLString(NSString *string) {
     } else {
         [[webView scrollView] setBounces:NO];
     }
-    [webView loadHTMLString:content_ baseURL:nil];
+    if (content_ != nil) {
+        [webView loadHTMLString:content_ baseURL:nil];
+    } else if (url_ != nil) {
+        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url_];
+        [webView loadRequest:request];
+        [request release];
+    }
     webView_ = webView;
 
     UIView *view = [[UIView alloc] initWithFrame:rect];
@@ -141,6 +166,19 @@ static NSString *escapedHTMLString(NSString *string) {
 
     if ([self isViewLoaded]) {
         [webView_ loadHTMLString:content_ baseURL:nil];
+    }
+}
+
+- (void)setURL:(NSURL *)url {
+    [url_ release];
+    url_ = [url retain];
+
+    if ([self isViewLoaded]) {
+        if (url_ != nil) {
+            NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url_];
+            [webView_ loadRequest:request];
+            [request release];
+        }
     }
 }
 
