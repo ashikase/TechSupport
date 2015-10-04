@@ -1,3 +1,10 @@
+> # Version 1.5.0
+> - - -
+> * NEW: Can now pass a URL to set the content of the HTML viewer.
+>     * This allows for the use of external files, such as stylesheets.
+
+- - -
+
 > # Version 1.4.0
 > - - -
 > * NEW: Added optional 'mimetype' parameter to include instruction.
