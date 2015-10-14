@@ -16,6 +16,7 @@ ADDITIONAL_CFLAGS = -DFRAMEWORK_ID=\"$(FRAMEWORK_ID)\" -ILibraries/Common -Iincl
 ADDITIONAL_LDFLAGS = -Wl,-segalign,4000
 
 export ARCHS = armv6 armv7 armv7s arm64
+export SDKVERSION = 8.4
 export TARGET = iphone:clang
 export TARGET_IPHONEOS_DEPLOYMENT_VERSION = 3.0
 
