@@ -13,6 +13,7 @@ TechSupport_OBJC_FILES = \
 TechSupport_FRAMEWORKS = MessageUI UIKit
 TechSupport_LIBRARIES = packageinfo
 ADDITIONAL_CFLAGS = -DFRAMEWORK_ID=\"$(FRAMEWORK_ID)\" -ILibraries/Common -Iinclude -include firmware.h -include include.pch
+ADDITIONAL_LDFLAGS = -Wl,-segalign,4000
 
 export ARCHS = armv6 armv7 armv7s arm64
 export TARGET = iphone:clang
